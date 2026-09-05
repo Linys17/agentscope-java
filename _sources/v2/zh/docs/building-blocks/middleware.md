@@ -57,7 +57,7 @@ ReActAgent agent =
                 .build();
 ```
 
-`middleware(...)`（单数）也可单独追加一个；`middlewares(...)` 接受 `List<? extends MiddlewareBase>`，未实现的位置自动跳过，不产生任何调用开销。
+`middleware(...)`（单数）也可单独添加一个；`middlewares(...)` 接受 `List<? extends MiddlewareBase>`，未实现的位置自动跳过，不产生任何调用开销。
 
 ## 内置 Middleware
 
@@ -71,12 +71,67 @@ ReActAgent agent =
 
 未配置 OpenTelemetry SDK（只剩默认的 no-op provider）时，所有 hook 会直接短路到 `next.apply(input)`，几乎零开销。
 
-使用前先在进程中初始化 OpenTelemetry SDK（OTLP exporter、`SdkTracerProvider`、`OpenTelemetrySdk.builder().setTracerProvider(...).buildAndRegisterGlobal()`），随后把 `OtelTracingMiddleware` 装到 agent 上即可：
+`OtelTracingMiddleware` 从进程级 `GlobalOpenTelemetry` 实例读取配置。应用如果自行导出 span，除了 AgentScope 之外还需要引入 OpenTelemetry SDK 和 OTLP exporter。使用 OpenTelemetry BOM 保持二者版本一致（下列版本与 AgentScope 当前使用的版本一致）：
+
+```xml
+<properties>
+    <opentelemetry.version>1.61.0</opentelemetry.version>
+</properties>
+
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-bom</artifactId>
+            <version>${opentelemetry.version}</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+
+<dependencies>
+    <dependency>
+        <groupId>io.opentelemetry</groupId>
+        <artifactId>opentelemetry-sdk</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>io.opentelemetry</groupId>
+        <artifactId>opentelemetry-exporter-otlp</artifactId>
+    </dependency>
+</dependencies>
+```
+
+构建 agent 之前，在每个进程中只构建并注册一次 SDK。下例中的可选环境变量可保存 `Basic <base64-credentials>` 形式的值，供 Langfuse 等要求 `Authorization` header 的后端使用：
 
 ```java
 import io.agentscope.core.ReActAgent;
 import io.agentscope.core.tracing.OtelTracingMiddleware;
-import java.util.List;
+import io.opentelemetry.exporter.otlp.http.trace.OtlpHttpSpanExporter;
+import io.opentelemetry.sdk.OpenTelemetrySdk;
+import io.opentelemetry.sdk.trace.SdkTracerProvider;
+import io.opentelemetry.sdk.trace.export.BatchSpanProcessor;
+
+String endpoint =
+        System.getenv().getOrDefault(
+                "OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4318/v1/traces");
+String authorization = System.getenv("OTEL_EXPORTER_OTLP_AUTHORIZATION");
+
+var exporterBuilder = OtlpHttpSpanExporter.builder().setEndpoint(endpoint);
+if (authorization != null && !authorization.isBlank()) {
+    exporterBuilder.addHeader("Authorization", authorization);
+}
+
+SdkTracerProvider tracerProvider =
+        SdkTracerProvider.builder()
+                .addSpanProcessor(
+                        BatchSpanProcessor.builder(exporterBuilder.build()).build())
+                .build();
+
+OpenTelemetrySdk.builder()
+        .setTracerProvider(tracerProvider)
+        .buildAndRegisterGlobal();
+Runtime.getRuntime().addShutdownHook(new Thread(tracerProvider::close));
 
 ReActAgent agent =
         ReActAgent.builder()
@@ -84,9 +139,11 @@ ReActAgent agent =
                 .sysPrompt("You are a helpful assistant.")
                 .model(model)
                 .toolkit(toolkit)
-                .middlewares(List.of(new OtelTracingMiddleware()))
+                .middleware(new OtelTracingMiddleware())
                 .build();
 ```
+
+必须在 middleware 开始工作前注册 SDK。如果运行环境（例如 Spring Boot 的 OpenTelemetry 自动配置）已经注册了 `GlobalOpenTelemetry`，直接复用并只添加 middleware 即可。新配置不再调用已弃用的 `TracerRegistry.register(...)`。应用关闭时应关闭 `SdkTracerProvider`，让 batch processor 刷新尚未导出的 span。
 
 每次 reply 会产出一棵嵌套 span 树，关键属性包括 agent 名称、session ID、模型名、token 数、工具名与入参等。
 
@@ -114,6 +171,24 @@ ReActAgent agent =
                 .build();
 ```
 
+### FinalAnswerFilterMiddleware
+
+`FinalAnswerFilterMiddleware` 仅输出 ReAct 最终推理轮次的文本。产生工具调用的中间轮次文本会被过滤，工具事件及其他非文本事件仍会正常流式输出。
+
+```java
+import io.agentscope.core.middleware.FinalAnswerFilterMiddleware;
+
+ReActAgent agent =
+        ReActAgent.builder()
+                .name("assistant")
+                .model(model)
+                .toolkit(toolkit)
+                .middleware(new FinalAnswerFilterMiddleware())
+                .build();
+```
+
+由于只有在未观察到工具调用时才能确定当前轮次是最终轮次，该 middleware 会将每轮文本缓冲到模型调用结束。
+
 ## 自定义 Middleware
 
 实现 `MiddlewareBase` 接口（位于 `io.agentscope.core.middleware`），只重写需要的 hook 即可，其它的不用管。
@@ -122,6 +197,7 @@ ReActAgent agent =
 
 ```java
 import io.agentscope.core.agent.Agent;
+import io.agentscope.core.agent.RuntimeContext;
 import io.agentscope.core.event.AgentEvent;
 import io.agentscope.core.middleware.ActingInput;
 import io.agentscope.core.middleware.AgentInput;
@@ -137,7 +213,7 @@ public class FullObservabilityMiddleware implements MiddlewareBase {
 
     @Override
     public Flux<AgentEvent> onAgent(
-            Agent agent, AgentInput input, Function<AgentInput, Flux<AgentEvent>> next) {
+            Agent agent, RuntimeContext ctx, AgentInput input, Function<AgentInput, Flux<AgentEvent>> next) {
         System.out.println("[agent] start for " + agent.getName());
         return next.apply(input)
                 .doOnComplete(() -> System.out.println("[agent] end for " + agent.getName()));
@@ -145,20 +221,20 @@ public class FullObservabilityMiddleware implements MiddlewareBase {
 
     @Override
     public Flux<AgentEvent> onReasoning(
-            Agent agent, ReasoningInput input, Function<ReasoningInput, Flux<AgentEvent>> next) {
+            Agent agent, RuntimeContext ctx, ReasoningInput input, Function<ReasoningInput, Flux<AgentEvent>> next) {
         System.out.println("[reasoning] start");
         return next.apply(input).doOnComplete(() -> System.out.println("[reasoning] end"));
     }
 
     @Override
     public Flux<AgentEvent> onModelCall(
-            Agent agent, ModelCallInput input, Function<ModelCallInput, Flux<AgentEvent>> next) {
+            Agent agent, RuntimeContext ctx, ModelCallInput input, Function<ModelCallInput, Flux<AgentEvent>> next) {
         System.out.println("[model_call] " + input.model().getClass().getSimpleName());
         return next.apply(input).doOnComplete(() -> System.out.println("[model_call] done"));
     }
 
     @Override
-    public Mono<String> onSystemPrompt(Agent agent, String currentPrompt) {
+    public Mono<String> onSystemPrompt(Agent agent, RuntimeContext ctx, String currentPrompt) {
         System.out.println("[system_prompt] length=" + currentPrompt.length());
         return Mono.just(currentPrompt);
     }
@@ -181,7 +257,7 @@ public class FullObservabilityMiddleware implements MiddlewareBase {
 
 ### 读取 RuntimeContext
 
-`MiddlewareBase` 的所有 hook 都把 `Agent` 作为首个参数传进来。通过 `agent.getRuntimeContext()` 可拿到本次 `call` / `stream` 绑定的 [`RuntimeContext`](./agent.md#runtimecontext-per-call-上下文)——既能读会话字段，也能按类型 / 按 key 取属性，还能反向写入来给下游 hook 和 tool 传值。
+`MiddlewareBase` 的所有 hook 都将本次 `call` / `stream` 绑定的 [`RuntimeContext`](./agent.md#runtimecontext-per-call-上下文) 作为第二个参数直接传入——既能读会话字段，也能按类型 / 按 key 取属性，还能反向写入来给下游 hook 和 tool 传值。
 
 ```java
 import io.agentscope.core.agent.Agent;
@@ -197,16 +273,13 @@ public class RequestContextMiddleware implements MiddlewareBase {
 
     @Override
     public Flux<AgentEvent> onAgent(
-            Agent agent, AgentInput input, Function<AgentInput, Flux<AgentEvent>> next) {
-        RuntimeContext rc = agent.getRuntimeContext();
-        if (rc != null) {
-            System.out.printf(
-                    "[req] user=%s session=%s reqId=%s%n",
-                    rc.getUserId(),
-                    rc.getSessionId(),
-                    rc.get("request_id"));
-            rc.put("trace_id", java.util.UUID.randomUUID().toString());  // 后续 hook / tool 可读
-        }
+            Agent agent, RuntimeContext ctx, AgentInput input, Function<AgentInput, Flux<AgentEvent>> next) {
+        System.out.printf(
+                "[req] user=%s session=%s reqId=%s%n",
+                ctx.getUserId(),
+                ctx.getSessionId(),
+                ctx.get("request_id"));
+        ctx.put("trace_id", java.util.UUID.randomUUID().toString());  // 后续 hook / tool 可读
         return next.apply(input);
     }
 }
@@ -214,19 +287,29 @@ public class RequestContextMiddleware implements MiddlewareBase {
 
 注意点：
 
-- `agent.getRuntimeContext()` 只在 `call` 期间非 null；未运行时调用返回 `null`。
 - 同一份 `RuntimeContext` 在整个 reply 内被各层 hook / tool 共享，使用线程安全的内部 map，可以安全地 `put` 写入。
 - 不要把请求级状态缓存到 middleware 实例字段——一个 middleware 实例通常被多个 agent / call 复用；要么放进 `RuntimeContext`，要么用 Reactor `contextWrite`。
 - 若 builder 上同时配置了全局 `toolExecutionContext`，框架在分发给 tool 时会把它合并到 per-call context 之后（per-call 优先级更高）。
 
 ### 执行顺序
 
-Onion 类 hook（`onAgent`、`onReasoning`、`onActing`、`onModelCall`）—— **列表中第一个 middleware 处于最外层**：
+Onion 类 hook（`onAgent`、`onReasoning`、`onActing`、`onModelCall`）按 `MiddlewareBase.order()` 排序——**数值越大越处于最外层**。默认值是 `1`；相同 order 的 middleware 保持其 Builder 注册顺序：
 
 ```
-middlewares = [mw1, mw2]
+middlewares = [mw1(order=2), mw2(order=1)]
 // 调用顺序：
 // mw1 前 → mw2 前 → 内部逻辑 → mw2 后 → mw1 后
+```
+
+自定义 middleware 可覆写 `order()`，改变其相对默认优先级的位置。例如 order 为 `0` 时，会进入所有仍保持默认 order `1` 的 middleware 内层：
+
+```java
+MiddlewareBase lowerPriority = new MiddlewareBase() {
+    @Override
+    public int order() {
+        return 0;
+    }
+};
 ```
 
 对于流式 / 产出事件的 hook，内层 middleware 先看到每一个 emit 出的事件：
@@ -389,3 +472,53 @@ public class ModelFallbackMiddleware implements MiddlewareBase {
 :::{tip}
 若只是简单的「主→备」回退，`ReActAgent.Builder` 直接暴露了 `fallbackModel(...)` 与 `maxRetries(...)`，无需自己写 middleware。
 :::
+
+### 全部工具被拒绝时停止 agent
+
+当用户通过 HITL 拒绝了一轮推理产出的全部工具调用时，agent 默认会继续下一轮推理（向后兼容）。如果希望在这种场景下停止 agent，可以编写一个 `onActing` middleware 观察 `AllToolsDeniedEvent` 并发出 `RequestStopEvent`：
+
+```java
+import io.agentscope.core.agent.Agent;
+import io.agentscope.core.agent.RuntimeContext;
+import io.agentscope.core.event.AgentEvent;
+import io.agentscope.core.event.AllToolsDeniedEvent;
+import io.agentscope.core.event.RequestStopEvent;
+import io.agentscope.core.message.GenerateReason;
+import io.agentscope.core.middleware.ActingInput;
+import io.agentscope.core.middleware.MiddlewareBase;
+import java.util.function.Function;
+import reactor.core.publisher.Flux;
+
+public class StopOnAllDeniedMiddleware implements MiddlewareBase {
+
+    @Override
+    public Flux<AgentEvent> onActing(
+            Agent agent, RuntimeContext ctx, ActingInput input,
+            Function<ActingInput, Flux<AgentEvent>> next) {
+        return next.apply(input)
+                .flatMap(event -> {
+                    if (event instanceof AllToolsDeniedEvent) {
+                        return Flux.just(
+                                event,
+                                new RequestStopEvent(
+                                        "All tools denied by user",
+                                        GenerateReason.ALL_TOOLS_DENIED));
+                    }
+                    return Flux.just(event);
+                });
+    }
+}
+```
+
+装配后，agent 在所有工具被拒绝时会立即停止，返回 `GenerateReason.ALL_TOOLS_DENIED`：
+
+```java
+ReActAgent agent =
+        ReActAgent.builder()
+                .name("guarded")
+                .sysPrompt("...")
+                .model(model)
+                .toolkit(toolkit)
+                .middlewares(List.of(new StopOnAllDeniedMiddleware()))
+                .build();
+```

@@ -58,6 +58,7 @@ temperature: 0.2              # 可选；覆盖父的 GenerateOptions
 top_p: 0.95                   # 可选
 hidden: false                 # true 时不出现在 agent 可见列表（仍可程序化 spawn）
 mode: subagent                # primary / subagent / all，默认 all；primary 不允许被 spawn
+expose_to_user: true          # 可选三态；强制/禁止向用户暴露（不写表示不表态）
 tools: [read_file, grep_files]   # 可选；继承工具的白名单
 ---
 
@@ -106,8 +107,30 @@ HarnessAgent.builder()
 
 主 agent 通过 `agent_spawn` 创建子 agent，关键是 `timeout_seconds`：
 
-- `timeout_seconds > 0`（默认 30，最大 600）—— **同步**调用，主 agent 在这一步 block 等待结果，结果作为工具结果返回。
+- `timeout_seconds > 0`（默认 30，最大 600）—— **同步**调用，主 agent 在这一步 block 等待结果，结果作为工具结果返回。默认超时后会 **promote** 成后台任务（`status: timeout_promoted` + `task_id`），子 agent 继续跑。
 - `timeout_seconds = 0` —— **后台**调用，立即返回一个 `task_id`，子 agent 在后台跑。
+
+**通过 `RuntimeContext` 强制同步。** 应用侧可在当前调用的 `RuntimeContext` 里放入 `AgentSpawnTool.CTX_FORCE_SYNC = true`，覆盖 LLM 的异步选择；可选再放 `CTX_FORCE_SYNC_TIMEOUT_SECONDS` 指定硬超时（秒）：
+
+```java
+RuntimeContext ctx = RuntimeContext.builder()
+    .sessionId("s-1")
+    .put(AgentSpawnTool.CTX_FORCE_SYNC, true)
+    .put(AgentSpawnTool.CTX_FORCE_SYNC_TIMEOUT_SECONDS, 120) // 可选；覆盖 LLM 的 timeout_seconds
+    .build();
+```
+
+开启后：
+
+1. 若设置了 `CTX_FORCE_SYNC_TIMEOUT_SECONDS`，它会**完全覆盖** LLM 的 `timeout_seconds`（`<=0` 回退到 30s，上限 600s）。
+2. 未设置时，LLM 传的 `timeout_seconds=0` 会被改写成默认同步超时（30s），**不会**提交后台任务；LLM 传的正数超时仍生效。
+3. 同步等待超时后返回 `status: timeout` 并中断子 agent，**不会** promote 成后台 `task_id`。
+
+`agent_send` 同样遵守该开关。同一轮里多个强制同步的 `agent_spawn` 仍可按 Toolkit 默认并行推进。
+
+如果一个目标可以拆成多个互不依赖、资源不冲突的子任务，主 agent 可以在同一轮 reasoning 里发起多个同步子 agent 调用。Toolkit 默认启用工具并行（`ToolkitConfig.parallel=true`），因此在 `ReActAgent` 与 `HarnessAgent` 上这些同步调用都会并行推进；主 agent 会等这一批工具结果都返回后再进入下一轮推理，相当于一次同步 fan-out / fan-in。若需串行执行工具，可传入 `ToolkitConfig.builder().parallel(false).build()` 构建的自定义 `Toolkit`。
+
+任务拆解时先画清楚独立性和依赖图：没有依赖边的节点适合交给多个子 agent 并行；有依赖关系的节点要等上游结果后再派发或合并。短任务、关键路径任务适合同步等待或先用 barrier 等齐，用于继续推理；长任务可以用后台模式先跑，主 agent 继续处理其他工作，后续再取结果合并。
 
 ### 后台任务自动反向通知
 
@@ -123,17 +146,167 @@ HarnessAgent.builder()
 
 主 agent 看到这条 reminder 自然地回应或继续行动。这意味着你**不需要**在 prompt 里写"记得调 task_output 轮询"——那是旧版本的做法。
 
-> `task_output` / `task_cancel` / `task_list` 这些工具还在，但仅作"逃生口"或人工调试时用。生产 prompt 里不应该出现轮询逻辑。
+### 后台任务工具
+
+子 agent 的生命周期背后由两组工具配合完成：
+
+| 工具 | 职责 |
+|------|------|
+| `agent_spawn` | 创建子 agent，可选地执行任务（同步或后台） |
+| `agent_send` | 向已存在的子 agent 追加消息 |
+| `agent_list` | 列出当前活跃的子 agent 实例 |
+| `task_output` | 通过 `task_id` 获取后台任务结果（阻塞或非阻塞） |
+| `wait_async_results` | 等待后台结果到达；可按 `task_ids` 等指定任务全部完成，或用 `wait_all=true` 等待当前 session 未完成任务快照全部完成 |
+| `task_cancel` | 取消正在运行的后台任务 |
+| `task_list` | 列出所有后台任务及其当前状态 |
+
+`agent_spawn` / `agent_send` 管理子 agent **实例**（创建、复用、通信）；`task_output` / `wait_async_results` / `task_cancel` / `task_list` 管理后台**任务结果**（查状态、取结果、等待、取消）。两者的桥梁是 `task_id`——在 `agent_spawn` 或 `agent_send` 使用 `timeout_seconds=0` 时返回。
+
+> 大多数情况下自动反向通知机制会把结果推回来，不需要显式调用任务工具。它们主要用作逃生口：在反向通知触发前主动检查进度、等待一组必须同时拿齐的结果、取消不再需要的任务、或者在对话压缩后恢复任务状态。
+
+异步结果有三种常用收集方式：
+
+- **主动通知**：不阻塞等待时的默认路径。子任务完成后，下一轮 reasoning 前通过 `<system-reminder>` 注入。
+- **指定任务检查**：用 `task_output(task_id, block=false)` 主动查看某个任务的当前状态或终态结果。
+- **等待 barrier（必须等齐时优先）**：用 `wait_async_results(task_ids="id1,id2")` 或 `wait_async_results(wait_all=true)`。barrier 模式会等到集合终态，并**把各任务结果直接写进本次工具返回**，主 agent 可立刻继续推理。`wait_all=true` 以调用开始时的未完成任务快照为准，等待期间新创建的任务不会加入 wait set。
+
+> **遗留 inbox-any**：不传 `task_ids` 且不传 `wait_all` 时，`wait_async_results` 只等到 inbox 中**任意一条**消息到达就返回，这不是 wait-all。需要一组任务全部完成时，请用 `task_ids` 或 `wait_all=true`。
 
 ## 给已存在的子 agent 补一条消息
 
-`agent_spawn` 返回值里有一个 `agent_key`（运行时实例句柄），用它（或你给的 `label`）就能后续追加消息：
+`agent_spawn` 返回值里有一个 `agent_key`（运行时实例句柄），用它或 `label` 就能后续追加消息：
 
 ```
 agent_send agent_key="agent:reviewer:abc-123" message="顺便也看下 schema 变更"
 ```
 
+如果 spawn 时设了 `label`，也可以用 label 来寻址：
+
+```
+agent_spawn agent_id="reviewer" task="review 这次 PR" label="pr-reviewer"
+agent_send label="pr-reviewer" message="顺便也看下 schema 变更"
+```
+
 要列当前活跃的子 agent：`agent_list`。
+
+## 持久会话
+
+默认每次 `agent_spawn` 都创建新的子 agent 实例和会话——不保留之前调用的上下文。在声明里设 `persistSession(true)` 可以让同一子 agent 在多次 spawn 之间复用：
+
+```java
+.subagent(SubagentDeclaration.builder()
+    .name("note-taker")
+    .description("跨对话轮次积累笔记")
+    .persistSession(true)
+    .build())
+```
+
+开启后，框架会根据 `(parentSessionId, agentId, label)` 生成确定性的 key。如果再次 spawn 同样的组合，就会复用已存在的 agent 实例——对话历史和状态都保留。
+
+## 向用户暴露子 Agent
+
+通常子 agent 对用户是不可见的——它们在幕后作为父 agent 的内部工具运行。通过 `expose_to_user=true`，父 agent 可以把子 agent 暴露为**用户可直接交互的入口**：
+
+```
+agent_spawn agent_id="researcher" task="调研 AI 趋势" expose_to_user=true
+```
+
+这做了两件事：
+
+1. **在 Gateway 里注册子 agent**，使其成为用户可寻址的入口
+2. **发出一个 `SubagentExposedEvent`** 到流式事件流中，携带 `subagentId` 句柄
+
+用户客户端收到 `SubagentExposedEvent` 后，就可以直接向子 agent 发消息——完全绕过父 agent：
+
+```java
+// 客户端：在事件流中监听暴露的子 agent
+chat.sendStream(SendOptions.userId("user-1"), "派一个研究员调查 AI 趋势")
+    .doOnNext(event -> {
+        if (event instanceof SubagentExposedEvent se) {
+            // se.getSubagentId() → 用来直接和子 agent 对话
+            // se.getAgentId()    → 子 agent 类型（如 "researcher"）
+            // se.getLabel()      → 可选的人类可读名称
+        }
+    })
+    .blockLast();
+
+// 直接向暴露的子 agent 发消息
+chat.sendToSubagent(subagentId, "重点关注 LLM agent").block();
+```
+
+适合"分支对话"场景：父 agent spawn 一个专家，用户独立地和那个专家继续交流。完整的 Channel 侧 API 见 [Channel — 与暴露的子 Agent 对话](./channel.md#与暴露的子-agent-对话)。
+
+### 怎么开启
+
+用 `agent.channel(...)` —— bridge 自动接好，零配置：
+
+```java
+HarnessAgent agent = HarnessAgent.builder()
+    .name("orchestrator")
+    .model("dashscope:qwen-plus")
+    .build();
+
+// channel() 创建内部 gateway 并自动接好 bridge——expose_to_user 直接可用。
+ChatUiChannel chat = agent.channel(ChatUiChannel.create());
+```
+
+没有绑定 Channel 时，`agent_spawn` 里的 `expose_to_user=true` 会被静默忽略——子 agent 照常工作，只是不会暴露给用户。多 agent 场景用 `GatewayBootstrap` 的接法见 [Channel — GatewayBootstrap 下暴露子 Agent](./channel.md#gatewaybootstrap-下暴露子-agent)。
+
+### 用代码控制是否暴露
+
+完全依赖 LLM 传 `expose_to_user=true` 有时不够灵活。你可以从应用代码侧覆盖这个决策，有两种方式，最终生效值按以下优先级解析（从高到低）：
+
+1. **`RuntimeContext` 按调用覆盖** —— 作用于当前这次调用里的所有 `agent_spawn`
+2. **`SubagentDeclaration` 按类型策略** —— 该子 agent 类型的静态默认值
+3. **LLM 传入的 `expose_to_user` 工具参数**
+4. 以上都没有表态时，默认为 **`false`**
+
+**通过 `RuntimeContext` 按调用覆盖。** 在 `AgentSpawnTool.CTX_EXPOSE_TO_USER` 这个 key 下放一个 `Boolean`（或其字符串形式）：
+
+```java
+RuntimeContext ctx = RuntimeContext.builder()
+    .userId("user-1")
+    .put(AgentSpawnTool.CTX_EXPOSE_TO_USER, true)   // 强制开启；传 false 则禁止暴露
+    .build();
+```
+
+**通过声明设置按类型策略。** 使用三态的 `exposeToUser` —— `TRUE` 总是暴露，`FALSE` 永不暴露（即使 LLM 传了 `expose_to_user=true` 也会被覆盖），`null`（默认）则交给 context 覆盖、再交给 LLM 参数决定：
+
+```java
+SubagentDeclaration decl = SubagentDeclaration.builder()
+    .name("researcher")
+    .description("调研主题并返回汇总报告。")
+    .exposeToUser(true)   // 这个子 agent 类型始终对用户可直接寻址
+    .build();
+```
+
+或在 Markdown 子 agent spec 的 front matter 里（同样是三态——不写这个 key 表示"不表态"）：
+
+```markdown
+---
+name: researcher
+description: 调研主题并返回汇总报告。
+expose_to_user: true
+---
+```
+
+这样你就能不管模型怎么决定，都能强制或禁止暴露；同时在代码两侧都不表态时，仍然让 LLM 自行选择。
+
+### 跨重启与多副本
+
+默认情况下，暴露只存在于创建它的进程里：`subagentId` 只在那个节点有效，重启即失效。要让暴露的子 agent 在**任意副本**、**重启之后**都能解析，给 agent 配上 `distributedStore(...)` 即可——和配 state、filesystem 是同一行：
+
+```java
+HarnessAgent agent = HarnessAgent.builder()
+    .name("orchestrator")
+    .model("dashscope:qwen-plus")
+    .distributedStore(RedisDistributedStore.fromJedis(jedis))
+    .build();
+
+ChatUiChannel chat = agent.channel(ChatUiChannel.create());  // 恢复能力自动接好
+```
+
+`subagentId` 会持久化到后端，子 agent 自己的对话会按 session 从分布式 `AgentStateStore` 重新加载——即使后续消息落到不同节点，用户面对的仍是*同一个*子 agent。多 agent 的 `GatewayBootstrap` 传 `.distributedStore(...)`（不传则继承 main agent 的）。部署建议——包括把某个 `subagentId` 路由回它的活实例所在节点（粘性路由）——见 [上生产](../others/going-to-production.md)。
 
 ## 让 agent 自己写新的子 agent spec
 
@@ -151,6 +324,7 @@ agent_send agent_key="agent:reviewer:abc-123" message="顺便也看下 schema �
 - **`description` 要写好**：这是模型决定要不要委派的关键依据。"代码评审"远不如"当用户要 review PR、找代码风格问题时使用"有效。
 - **递归保护**：子 agent 不能再 spawn 子 agent（被强制标为"叶子"）；同时还有一个硬上限 3 层。
 - **userId 透传**：父的 `RuntimeContext.userId` 会自动透到子，所以多租户隔离链不会断。
+- **权限继承**：父的所有 DENY 权限规则会自动传给子。如果父被禁用了某个工具，子也一样被禁——安全边界不会因为委派被绕过。在声明里设 `inheritParentPermissions(false)` 可以关闭这个行为。
 - **流式转发**：父 agent `stream()` 时，同步子 agent 的中间事件会实时流回父的 `Flux`（带来源标记），见下文 [子 Agent 流式](#子-agent-流式)。
 
 ## 远程子 agent
@@ -163,10 +337,48 @@ agent_send agent_key="agent:reviewer:abc-123" message="顺便也看下 schema �
     .description("远端调研子 agent")
     .url("http://agent-task-server:8080")
     .headers(Map.of("Authorization", "Bearer xxx"))
+    .remoteStreaming(true)          // 未设置时默认 true
+    .remoteStreamDetail(RemoteStreamDetail.VERBOSE)  // 未设置时为 FULL
+    .remoteAskPolicy(RemoteAskPolicy.DENY)  // 默认
+    .remoteContextAttributes(Map.of("region", "cn"))
     .build())
 ```
 
 同样支持同步（`timeout_seconds>0`）和后台（`timeout_seconds=0`）。
+
+远程模式专用声明字段：
+
+| 字段 | 默认 | 说明 |
+|------|------|------|
+| `remoteStreaming` | `true`（未设置时） | 父代理使用 `streamEvents()` 时，把远程任务的 SSE 事件转发进父流，并带 `source` 标记与 `metadata.taskId` / `metadata.parentSessionId`（与 harness `TaskRecord` / 父 session 一致） |
+| `remoteStreamDetail` | `FULL` | 回传多少远程事件——见[远程流式详细度](#远程流式详细度) |
+| `remoteAskPolicy` | `DENY` | 如何处理远程工具确认（HITL）请求——见 [远程授权](#远程授权) |
+| `remoteContextAttributes` | 无 | 每次提交都携带的静态调用方属性，写入 `context.attributes`。按次追加时，在父代理的 `RuntimeContext` 上用 `AgentSpawnTool.CTX_REMOTE_CONTEXT_ATTRIBUTES` 放一个 map；见[上下文属性](../../integration/protocol/agent-protocol.md#上下文属性contextattributes) |
+
+### 远程流式详细度
+
+本地子 agent 会把孩子的事件原样转发给父流。远程子 agent 的事件要过一趟网络，过多少由 `remoteStreamDetail` 决定，以 `context.detail` 发送：
+
+| 档位 | 回传内容 |
+|------|----------|
+| `STATUS` | 运行生命周期、工具调用起止、工具结果、确认请求 |
+| `FULL`（默认） | `STATUS` 之外再加文本与思考增量 |
+| `VERBOSE` | 远程 agent 发出的每一个事件——块边界、工具入参增量、**工具输出增量**、带 token usage 的模型调用、hint、agent 结果、自定义事件 |
+
+如果希望父流在子 agent 是本地还是远程时表现一致，选 `VERBOSE`——这是唯一能让远程子 agent 的工具输出内容和 token 用量到达父代理的档位。它不作为默认，是因为对只渲染文本的调用方来说这些事件纯粹是额外流量。
+
+没有专属 wire 类型的事件以 `AGENT_EVENT` 传输，原始事件完整序列化在 `payload` 字段里，父代理解出来的就是本地场景下同一个类，id、时间戳和 metadata 都在。不认识该字段的旧客户端仍读扁平字段，只是看不到这些透传事件。
+
+### 远程授权
+
+父代理的 DENY 权限规则会随远程提交的 `context.deny_rules` 一并转发（与本地子 agent 的权限继承一致；可用 `inheritParentPermissions(false)` 关闭）。
+
+远程 agent 因工具确认而暂停（`awaiting_confirm`）时：
+
+- **父代理流式 + `remoteAskPolicy=PROPAGATE`**：向父的 `streamEvents()` 转发带非空 `source` 标记的 `RequireUserConfirmEvent`。通过 Agent Protocol [`POST /tasks/{id}/resume`](../../integration/protocol/agent-protocol.md) 恢复，请求体为 `decisions[{toolCallId, approved}]`。
+- **父代理非流式（`call`）或 `remoteAskPolicy=DENY`（默认）**：自动拒绝待确认项。工具结果中会附注：`remote tool confirmation(s) were auto-denied`。
+
+等待确认期间任务状态保持 `RUNNING`（`awaitingConfirm=true`）。因此 `wait_async_results` 等 barrier 会继续等待，直到任务被 resume 并进入终态。
 
 ## 异步任务的存储位置
 
@@ -178,126 +390,70 @@ agent_send agent_key="agent:reviewer:abc-123" message="顺便也看下 schema �
 
 ## 在 Plan Mode 下委派子 agent
 
-⚠ 当前**已知缺口**：父 agent 在 Plan Mode 时 spawn 的子 agent **不会自动继承只读限制**。如果想限制子 agent，请在它的声明里用 `tools` 把工具列表收窄到只读工具，或者在子 agent 自己的 builder 里也开 `enablePlanMode()`。
+父 agent 在 Plan Mode 时 spawn 的子 agent 会**自动继承只读限制**——子 agent 在 spawn 时就会被置入 Plan Mode，无法执行写操作，安全边界在委派链上不会断。
 
 ## 子 Agent 流式
 
-> 新代码请优先用 `streamEvents()`（返回 `Flux<io.agentscope.core.event.AgentEvent>`，与 Python 2.0 的 `agent.reply_stream()` 对齐的细粒度事件体系）。返回 `Flux<Event>` 的旧 `stream()` 系列在 2.0.0 起 `@Deprecated(forRemoval = true)` —— 详见 [消息与事件](../building-blocks/message-and-event.md) 与 [Changelog B.4](../change-log.md)。本节讲 `HarnessAgent` 在两套 API 下的子 agent 事件转发行为。
+> 新代码请用 `streamEvents()`（返回 `Flux<AgentEvent>`）。旧 `stream()` 系列（`Flux<Event>`）在 2.0.0 起 `@Deprecated(forRemoval = true)` —— 详见 [消息与事件](../building-blocks/message-and-event.md) 与 [V1 迁移指南 B.4](../change-log.md)。
 
-### 怎么选
+父 agent 通过 `agent_spawn` / `agent_send` 同步调用子 agent 时，子 agent 的中间事件会**实时转发**到父的 `streamEvents()` 流中。每个子事件都带一个 `source` 字段（`/` 分隔的路径，如 `"main/researcher"`），父事件的 `source` 为 `null`。远程 Agent Protocol 子 agent 还会写入 `metadata.taskId`（`AgentEvent.METADATA_TASK_ID`，harness 侧任务 id）与 `metadata.parentSessionId`（`AgentEvent.METADATA_PARENT_SESSION_ID`，父 session），因此同一轮里对同一远程 agent 的多次调用即使 `source` 相同也能区分，并能回溯到发起方会话。
 
-| 场景 | 推荐 |
-|------|------|
-| 只关心父 agent 自身事件（文本增量、工具调用、生命周期） | **`streamEvents()`**（`Flux<AgentEvent>`） |
-| **需要实时拿到子 agent 事件**（带 `EventSource` 的子流转发） | `stream()`（`Flux<Event>`）—— 目前唯一通道 |
+```
+caller
+  └─ parent.streamEvents(msg, ctx)
+        │
+        ├─ AGENT_START                            ← 父 agent 启动
+        ├─ TEXT_BLOCK_DELTA …                     ← 父推理
+        ├─ TOOL_CALL_START "agent_spawn"
+        │
+        │  [子 agent 创建]
+        ├─ AGENT_START          (source="main/researcher")  ← 子启动
+        ├─ TEXT_BLOCK_DELTA …   (source="main/researcher")  ← 子推理
+        ├─ TOOL_CALL_START …    (source="main/researcher")
+        ├─ TOOL_RESULT_END …   (source="main/researcher")
+        ├─ AGENT_END            (source="main/researcher")  ← 子结束
+        │  [agent_spawn 返回，子结果作为 TOOL_RESULT 传给父]
+        │
+        ├─ TOOL_RESULT_END                        ← 父收到工具结果
+        ├─ TEXT_BLOCK_DELTA …                     ← 父第二轮推理
+        └─ AGENT_END                              ← 父结束
+```
 
-`AgentEvent` 体系尚未提供与 `EventSource` 等价的子 agent 来源通道（在 v2 roadmap 上）。在通道落地前，需要实时子 agent 事件的调用方必须沿用已弃用的 `stream()`；只关心父事件的调用方今天就应该切到 `streamEvents()`。
-
-### 父 agent 事件 —— `streamEvents()`（推荐）
+### 使用 `streamEvents()`（推荐）
 
 ```java
-import io.agentscope.core.event.AgentEvent;
-import io.agentscope.core.event.AgentEventType;
-import io.agentscope.core.event.TextBlockDeltaEvent;
-import io.agentscope.core.event.ToolCallStartEvent;
-
 parent.streamEvents(new UserMessage(message), ctx)
     .doOnNext(event -> {
-        // event 是 io.agentscope.core.event.AgentEvent 的具体子类
+        String src = event.getSource();
+        String prefix = (src != null) ? "[" + src + "] " : "";
+
         if (event.getType() == AgentEventType.TEXT_BLOCK_DELTA) {
-            System.out.print(((TextBlockDeltaEvent) event).getDelta());
+            System.out.print(prefix + ((TextBlockDeltaEvent) event).getDelta());
         } else if (event.getType() == AgentEventType.TOOL_CALL_START) {
-            ToolCallStartEvent start = (ToolCallStartEvent) event;
-            System.out.println("\n[tool] " + start.getToolName());
+            System.out.println(prefix + "[tool] " + ((ToolCallStartEvent) event).getToolCallName());
+        } else if (event.getType() == AgentEventType.AGENT_START) {
+            if (src != null) System.out.println("── 子 agent 启动: " + src);
+        } else if (event.getType() == AgentEventType.AGENT_END) {
+            if (src != null) System.out.println("── 子 agent 结束: " + src);
         }
-        // 其他生命周期事件：AgentStartEvent / AgentEndEvent,
-        // ModelCallStart/End、ToolResultStart/End、RequireUserConfirmEvent 等
     })
     .blockLast();
 ```
 
-这条路径**不会**转发子 agent 事件 —— 通过 `agent_spawn` / `agent_send` spawn 出的子 agent 会静默运行完，最终结果以 `TOOL_RESULT` 块的形式回给父 agent。
-
-### 子 agent 转发 —— `stream()`（已弃用，但目前唯一通道）
-
-当你用 `parent.stream()` 调用主 agent，主 agent 在推理过程中又通过 `agent_spawn` / `agent_send` 调用子 agent，**子 agent 产生的所有中间事件会被实时注入到父的事件流里**。每个事件带一个 `EventSource` 字段，告诉你这个事件来自父还是哪个子 agent。
-
-```
-caller
-  └─ parent.stream()                          ← @Deprecated(forRemoval=true)，但目前唯一
-        │                                       能实时拿到子 agent 事件的入口
-        ├─ parent 的 REASONING 块...          ← 父推理第一轮（含工具调用）
-        │
-        │  [agent_spawn "researcher" 开始]
-        ├─ child 的 REASONING 块...           ← 子推理（实时转发，带 EventSource）
-        ├─ child 的 TOOL_RESULT...
-        ├─ child 的 AGENT_RESULT (last)       ← 子最终回复（实时转发）
-        │  [agent_spawn 返回，子结果作为 TOOL_RESULT 传给父]
-        │
-        ├─ parent 的 TOOL_RESULT...
-        ├─ parent 的 REASONING 块...          ← 父第二轮
-        └─ parent 的 AGENT_RESULT (last)       ← 父最终回复
-```
-
-父 agent 自身事件 `source == null`；子 agent 事件 `source != null`。
-
-#### 区分事件来源
+区分父子事件：
 
 ```java
-// 注意：stream(...) 已经是 @Deprecated(forRemoval=true)。这里保留只是因为它目前是
-// 唯一能实时拿到子 agent 事件的 API。等 AgentEvent 上的子 agent 来源通道落地后，
-// 请迁到 streamEvents(...)。
-Flux<Event> events = parent.stream(msgs, StreamOptions.defaults(), ctx);
+// 只看父事件
+events.filter(e -> e.getSource() == null).subscribe(…);
 
-events.subscribe(event -> {
-    EventSource src = event.getSource();
-    if (src == null) {
-        // 父 agent 自身
-        System.out.printf("[parent][%s] %s%n",
-                event.getType(), event.getMessage().getTextContent());
-    } else {
-        // 子（或孙）agent
-        System.out.printf("[%s|depth=%d|path=%s][%s] %s%n",
-                src.getAgentId(), src.getDepth(), src.getPath(),
-                event.getType(), event.getMessage().getTextContent());
-    }
-});
-```
+// 只看子事件
+events.filter(e -> e.getSource() != null).subscribe(…);
 
-`EventSource` 里常用的字段：
-
-| 字段 | 含义 |
-|------|------|
-| `agentId` | 子 agent 的类型 id（`subagents/<id>.md` 的文件名） |
-| `agentKey` | 运行时实例句柄，可以传给 `agent_send` |
-| `agentName` | 显示名（可空） |
-| `sessionId` | 子 agent 当次调用的会话 id |
-| `parentSessionId` | 父 agent 的会话 id |
-| `depth` | 嵌套深度（父直接子 = 1，孙 = 2，依此类推） |
-| `path` | `/` 分隔的调用路径，多级嵌套自动叠加，如 `sess-001/planner/executor` |
-
-### 多级嵌套（孙 agent）
-
-子 agent 自己也可以 spawn 孙 agent（受 3 层硬上限保护）。孙 agent 的事件会逐级冒泡到父；按 `depth` 或 `path` 过滤即可定位任意层级：
-
-```java
-// 只取第一层子 agent 的 REASONING
-events.filter(e -> e.getSource() != null
-               && e.getSource().getDepth() == 1
-               && e.getType() == EventType.REASONING)
-      .subscribe(...);
-
-// 只取路径包含 "executor" 的事件（任意深度）
-events.filter(e -> e.getSource() != null
-               && e.getSource().getPath().contains("executor"))
-      .subscribe(...);
+// 只看特定子 agent 的事件
+events.filter(e -> e.getSource() != null && e.getSource().contains("researcher")).subscribe(…);
 ```
 
 ### SSE 转发
-
-按客户端的需求挑 API：
-
-**只转父 agent 事件**（大多数对话 UI 推荐这条）：
 
 ```java
 @GetMapping(value = "/chat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -309,37 +465,13 @@ public Flux<ServerSentEvent<String>> chat(@RequestParam String message,
                 Map<String, Object> payload = new LinkedHashMap<>();
                 payload.put("type", event.getType().name());
                 payload.put("id",   event.getId());
+                if (event.getSource() != null) {
+                    payload.put("source", event.getSource());
+                }
                 if (event instanceof TextBlockDeltaEvent delta) {
                     payload.put("delta", delta.getDelta());
                 } else if (event instanceof ToolCallStartEvent start) {
-                    payload.put("toolName", start.getToolName());
-                }
-                return ServerSentEvent.<String>builder()
-                        .data(objectMapper.writeValueAsString(payload))
-                        .build();
-            });
-}
-```
-
-**需要把子 agent 事件也转给前端**（只能用已弃用的 `stream()`，直到 `AgentEvent` 子来源通道落地）：
-
-```java
-@GetMapping(value = "/chat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-public Flux<ServerSentEvent<String>> chat(@RequestParam String message,
-                                          @RequestParam String sessionId) {
-    RuntimeContext ctx = RuntimeContext.builder().sessionId(sessionId).build();
-    return agent.stream( // @Deprecated(forRemoval=true)，见上文说明
-                    List.of(new UserMessage(message)),
-                    StreamOptions.defaults(), ctx)
-            .map(event -> {
-                Map<String, Object> payload = new LinkedHashMap<>();
-                payload.put("type", event.getType());
-                payload.put("text", event.getMessage().getTextContent());
-                payload.put("last", event.isLast());
-                if (event.getSource() != null) {
-                    payload.put("agentId", event.getSource().getAgentId());
-                    payload.put("depth",   event.getSource().getDepth());
-                    payload.put("path",    event.getSource().getPath());
+                    payload.put("toolName", start.getToolCallName());
                 }
                 return ServerSentEvent.<String>builder()
                         .data(objectMapper.writeValueAsString(payload))
@@ -352,12 +484,11 @@ public Flux<ServerSentEvent<String>> chat(@RequestParam String message,
 
 | 场景 | 是否实时流转发？ |
 |------|-----------------|
-| `stream()`（已弃用） + 同步本地子 agent（`timeout_seconds > 0`） | ✔ |
-| `streamEvents()`（推荐）—— 任意子 agent | ✗（仅父 agent 事件；`AgentEvent` 子来源通道是 roadmap 项） |
+| `streamEvents()` + 同步本地子 agent（`timeout_seconds > 0`） | ✔ |
 | `call()` 模式（非流式） | ✗（子结果以 `tool_result` 字符串返回） |
 | `timeout_seconds = 0` 后台任务 | ✗（终态会通过反向通知给父 agent 下一轮） |
-| 远程子 agent（Agent Protocol） | ✗ |
-| 多级嵌套（孙 agent），`stream()` 路径 | ✔（自动叠 `path` / `depth`） |
+| 远程子 agent（Agent Protocol）+ 父 `streamEvents()` + `remoteStreaming=true`（默认） | ✔ |
+| 远程子 agent + 父 `call()` 或 `remoteStreaming=false` | ✗ |
 
 ### 错误处理
 
@@ -365,8 +496,10 @@ public Flux<ServerSentEvent<String>> chat(@RequestParam String message,
 
 ## 相关文档
 
-- [工作区](./workspace) — `subagents/` 与 `agents/<id>/tasks/` 的目录布局
-- [计划模式](./plan-mode) — plan 阶段对子 agent 的限制
-- [架构](./architecture) — 主/子 agent 怎么协作
+- [Channel](./channel.md) — `expose_to_user`、`SendOptions`、用户直接与子 agent 交互
+- [工作区](./workspace.md) — `subagents/` 与 `agents/<id>/tasks/` 的目录布局
+- [计划模式](./plan-mode.md) — plan 阶段对子 agent 的限制
+- [架构](./architecture.md) — 主/子 agent 怎么协作
+- [Agent Protocol](../../integration/protocol/agent-protocol.md) — 远程任务端点（SSE + HITL resume）
 - [消息与事件](../building-blocks/message-and-event.md) — `AgentEvent` 体系（推荐）以及已弃用的 `Event` / `EventType` / `StreamOptions`
-- [Changelog B.4](../change-log.md) — `stream()` → `streamEvents()` 弃用时间线
+- [V1 迁移指南 B.4](../change-log.md) — `stream()` → `streamEvents()` 弃用时间线

@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <meta property="article:modified_time" content="2026-06-02T16:19:40+00:00" /><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html"><link rel="next" title="Filesystem" href="filesystem.html"><link rel="prev" title="Workspace" href="workspace.html">
+    <meta property="article:modified_time" content="2026-08-05T15:55:25+00:00" /><link rel="index" title="Index" href="../../../../genindex.html"><link rel="search" title="Search" href="../../../../search.html"><link rel="next" title="Filesystem" href="filesystem.html"><link rel="prev" title="Workspace" href="workspace.html">
         <link rel="canonical" href="https://java.agentscope.io/v2/en/docs/harness/memory.html">
         <link rel="prefetch" href="../../../../_static/logo.svg" as="image">
 
@@ -18,8 +18,8 @@
     <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-thebe.css?v=4fa983c6" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?v=8dab3a3b" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=832171e9" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/homepage.css?v=16a56cbd" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=6f24c6f4" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/homepage.css?v=f1c207f0" />
     
     
 
@@ -672,7 +672,6 @@
 <p class="caption" role="heading"><span class="caption-text">v2 · Quick Start</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../index.html">What's AgentScope 2.0?</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../change-log.html">Change Log</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">v2 · Building Blocks</span></p>
@@ -683,11 +682,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../building-blocks/model.html">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../building-blocks/permission-system.html">Permission System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../building-blocks/tool.html">Tool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../building-blocks/context.html">Context &amp; AgentState</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">v2 · Harness (English)</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
-<li class="toctree-l1"><a class="reference internal" href="context.html">Context</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compaction.html">Compaction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="workspace.html">Workspace</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Memory</a></li>
 <li class="toctree-l1"><a class="reference internal" href="filesystem.html">Filesystem</a></li>
@@ -695,27 +695,46 @@
 <li class="toctree-l1"><a class="reference internal" href="subagent.html">Subagent</a></li>
 <li class="toctree-l1"><a class="reference internal" href="skill.html">Skill</a></li>
 <li class="toctree-l1"><a class="reference internal" href="plan-mode.html">Plan Mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="channel.html">Channel</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">v2 · Reference</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../change-log.html">Migration Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../others/release-notes.html">Release Notes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../others/going-to-production.html">Going to Production</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../others/faq.html">FAQ</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">v2 · Integration</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../integration/overview.html">Overview</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../integration/memory/index.html">Memory</a><input aria-label="Toggle navigation of Memory" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../integration/model/index.html">Model Providers</a><input aria-label="Toggle navigation of Model Providers" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../integration/model/openai.html">OpenAI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../integration/model/deepseek.html">DeepSeek</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../integration/model/glm.html">GLM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../integration/model/kimi.html">Kimi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../integration/model/minimax.html">MiniMax</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../integration/model/dashscope.html">DashScope</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../integration/model/gemini.html">Gemini</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../integration/model/anthropic.html">Anthropic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../integration/model/ollama.html">Ollama</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../integration/memory/index.html">Memory</a><input aria-label="Toggle navigation of Memory" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../integration/memory/overview.html">Overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../integration/memory/mem0.html">Mem0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../integration/memory/bailian.html">Bailian Memory</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../integration/memory/reme.html">ReMe</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../integration/session/index.html">Session</a><input aria-label="Toggle navigation of Session" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../integration/session/mysql.html">MySQL Session</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../integration/session/redis.html">Redis Session</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../integration/session/index.html">Agent State Store</a><input aria-label="Toggle navigation of Agent State Store" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../integration/session/overview.html">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../integration/session/mysql.html">MySQL State Store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../integration/session/redis.html">Redis State Store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../integration/session/oss.html">OSS State Store</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../integration/rag/index.html">RAG Knowledge Base</a><input aria-label="Toggle navigation of RAG Knowledge Base" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../integration/rag/index.html">RAG Knowledge Base</a><input aria-label="Toggle navigation of RAG Knowledge Base" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../integration/rag/overview.html">Overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../integration/rag/simple.html">Simple</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../integration/rag/bailian.html">Bailian Knowledge</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../integration/rag/dify.html">Dify</a></li>
@@ -723,27 +742,30 @@
 <li class="toctree-l2"><a class="reference internal" href="../../integration/rag/ragflow.html">RAGFlow</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../integration/skill/index.html">Skill Repository</a><input aria-label="Toggle navigation of Skill Repository" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../integration/skill/index.html">Skill Repository</a><input aria-label="Toggle navigation of Skill Repository" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../integration/skill/overview.html">Overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../integration/skill/git-repository.html">Git Skill Repository</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../integration/skill/mysql-repository.html">MySQL Skill Repository</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../integration/skill/postgresql-repository.html">PostgreSQL Skill Repository</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../integration/protocol/index.html">Agent Protocols</a><input aria-label="Toggle navigation of Agent Protocols" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../integration/protocol/index.html">Agent Protocols</a><input aria-label="Toggle navigation of Agent Protocols" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../integration/protocol/overview.html">Overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../integration/protocol/a2a.html">A2A</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../integration/protocol/agui.html">AG-UI</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../integration/protocol/agent-protocol.html">Agent Protocol</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../integration/infrastructure/index.html">Infrastructure</a><input aria-label="Toggle navigation of Infrastructure" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../integration/infrastructure/index.html">Infrastructure</a><input aria-label="Toggle navigation of Infrastructure" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../integration/infrastructure/overview.html">Overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../integration/infrastructure/higress.html">Higress</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../integration/infrastructure/nacos.html">Nacos</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../integration/infrastructure/rocketmq.html">RocketMQ</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../integration/infrastructure/scheduler.html">Scheduler</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../integration/ecosystem/index.html">Ecosystem</a><input aria-label="Toggle navigation of Ecosystem" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../integration/ecosystem/index.html">Ecosystem</a><input aria-label="Toggle navigation of Ecosystem" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../integration/ecosystem/overview.html">Overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../integration/ecosystem/chat-completions-web.html">Chat Completions Web</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../integration/ecosystem/kotlin.html">Kotlin</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../integration/ecosystem/studio.html">Studio</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../integration/ecosystem/training.html">Online Training</a></li>
 </ul>
@@ -752,7 +774,26 @@
 <p class="caption" role="heading"><span class="caption-text">v2 · Blogs</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../blogs/agentscope-v2-release.html">AgentScope 2.0 Release</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../blogs/agentscope-v2-explained.html">AgentScope 2.0 Production-Ready - Enterprise Harness Explained</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../blogs/agentscope-v1-harness.html">AgentScope Java 1.1 · Harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../blogs/agentscope-v1-builder.html">AgentScope Builder Release</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../blogs/agentscope-v2-coding-agent.html">The Second Half of Coding Agents: From Personal Efficiency to Org-Level Engineering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../blogs/managed-agents-agentscope-rumtime.html">Managed Agents Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../blogs/managed-agents-agentscope-rumtime.html#why-agentscope-2-0-is-a-good-foundation-for-managed-agents">Why AgentScope 2.0 Is a Good Foundation for Managed Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../blogs/managed-agents-agentscope-rumtime.html#enterprise-managed-agents-platform-in-detail">Enterprise Managed Agents Platform in Detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../blogs/managed-agents-agentscope-rumtime.html#summary">Summary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../blogs/agentscope-service-release.html">What Is AgentScope Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../blogs/agentscope-service-release.html#architecture-overview">Architecture Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../blogs/agentscope-service-release.html#how-agents-attach">How Agents Attach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../blogs/agentscope-service-release.html#try-it-locally">Try It Locally</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../blogs/agentscope-service-release.html#roadmap-closing">Roadmap &amp; Closing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../blogs/agentscope-service-release-tech.html">AgentScope Service Explained: Control Plane, Data Plane &amp; Recoverable Runtime</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../blogs/usecases/index.html">Customer Use Cases</a><input aria-label="Toggle navigation of Customer Use Cases" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../blogs/usecases/finxscope.html">FinXScope: A Financial-Grade Agent Foundation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../blogs/usecases/logistics.html">From Config-Driven to Business-Native: Enterprise Agent Practice</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../blogs/usecases/aidc-logistics.html">AIDC Logistics: Enterprise Agent Development Practice</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">v2 · Community</span></p>
 <ul>
@@ -760,7 +801,6 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">v2 · 快速开始</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../zh/docs/change-log.html">更新日志</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../zh/docs/index.html">什么是 AgentScope 2.0？</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../zh/docs/quickstart.html">快速上手</a></li>
 </ul>
@@ -772,11 +812,12 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../zh/docs/building-blocks/model.html">模型</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../zh/docs/building-blocks/permission-system.html">权限系统</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../zh/docs/building-blocks/tool.html">工具</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zh/docs/building-blocks/context.html">上下文与 AgentState</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">v2 · Harness</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../zh/docs/harness/architecture.html">架构</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../zh/docs/harness/context.html">上下文</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zh/docs/harness/compaction.html">上下文压缩</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../zh/docs/harness/workspace.html">工作区</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../zh/docs/harness/memory.html">记忆</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../zh/docs/harness/filesystem.html">文件系统</a></li>
@@ -784,27 +825,46 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../zh/docs/harness/subagent.html">子 Agent</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../zh/docs/harness/skill.html">技能</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../zh/docs/harness/plan-mode.html">计划模式</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zh/docs/harness/channel.html">Channel</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">v2 · 参考</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../zh/docs/change-log.html">迁移指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zh/docs/others/release-notes.html">Release Notes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../zh/docs/others/going-to-production.html">上生产</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../zh/docs/others/faq.html">常见问题</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">v2 · 集成</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../zh/integration/overview.html">概览</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../../zh/integration/memory/index.html">记忆</a><input aria-label="Toggle navigation of 记忆" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../zh/integration/model/index.html">模型提供商</a><input aria-label="Toggle navigation of 模型提供商" class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/model/openai.html">OpenAI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/model/deepseek.html">DeepSeek</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/model/glm.html">GLM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/model/kimi.html">Kimi</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/model/minimax.html">MiniMax</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/model/dashscope.html">DashScope</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/model/gemini.html">Gemini</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/model/anthropic.html">Anthropic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/model/ollama.html">Ollama</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../zh/integration/memory/index.html">记忆</a><input aria-label="Toggle navigation of 记忆" class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/memory/overview.html">概览</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/memory/mem0.html">Mem0</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/memory/bailian.html">百炼记忆</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/memory/reme.html">ReMe</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../../zh/integration/session/index.html">会话</a><input aria-label="Toggle navigation of 会话" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/session/mysql.html">MySQL Session</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/session/redis.html">Redis Session</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../zh/integration/session/index.html">Agent 状态存储</a><input aria-label="Toggle navigation of Agent 状态存储" class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/session/overview.html">概览</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/session/mysql.html">MySQL 状态存储</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/session/redis.html">Redis 状态存储</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/session/oss.html">OSS 状态存储</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../../zh/integration/rag/index.html">RAG 知识库</a><input aria-label="Toggle navigation of RAG 知识库" class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../zh/integration/rag/index.html">RAG 知识库</a><input aria-label="Toggle navigation of RAG 知识库" class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/rag/overview.html">概览</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/rag/simple.html">Simple</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/rag/bailian.html">百炼知识库</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/rag/dify.html">Dify</a></li>
@@ -812,27 +872,30 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/rag/ragflow.html">RAGFlow</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../../zh/integration/skill/index.html">技能仓库</a><input aria-label="Toggle navigation of 技能仓库" class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../zh/integration/skill/index.html">技能仓库</a><input aria-label="Toggle navigation of 技能仓库" class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/skill/overview.html">概览</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/skill/git-repository.html">Git 技能仓库</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/skill/mysql-repository.html">MySQL 技能仓库</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/skill/postgresql-repository.html">PostgreSQL 技能仓库</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../../zh/integration/protocol/index.html">智能体协议</a><input aria-label="Toggle navigation of 智能体协议" class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../zh/integration/protocol/index.html">智能体协议</a><input aria-label="Toggle navigation of 智能体协议" class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" role="switch" type="checkbox"/><label for="toctree-checkbox-15"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/protocol/overview.html">概览</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/protocol/a2a.html">A2A</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/protocol/agui.html">AG-UI</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/protocol/agent-protocol.html">Agent Protocol</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../../zh/integration/infrastructure/index.html">基础设施</a><input aria-label="Toggle navigation of 基础设施" class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../zh/integration/infrastructure/index.html">基础设施</a><input aria-label="Toggle navigation of 基础设施" class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" role="switch" type="checkbox"/><label for="toctree-checkbox-16"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/infrastructure/overview.html">概览</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/infrastructure/higress.html">Higress</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/infrastructure/nacos.html">Nacos</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/infrastructure/rocketmq.html">RocketMQ</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/infrastructure/scheduler.html">Scheduler</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../../zh/integration/ecosystem/index.html">生态扩展</a><input aria-label="Toggle navigation of 生态扩展" class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../zh/integration/ecosystem/index.html">生态扩展</a><input aria-label="Toggle navigation of 生态扩展" class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" role="switch" type="checkbox"/><label for="toctree-checkbox-17"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/ecosystem/overview.html">概览</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/ecosystem/chat-completions-web.html">Chat Completions Web</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/ecosystem/kotlin.html">Kotlin</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/ecosystem/studio.html">Studio</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../zh/integration/ecosystem/training.html">在线训练</a></li>
 </ul>
@@ -841,8 +904,26 @@
 <p class="caption" role="heading"><span class="caption-text">v2 · 博客</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../zh/blogs/agentscope-v2-release.html">AgentScope 2.0 发布</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zh/blogs/agentscope-v2-explained.html">AgentScope 2.0 生产可用，企业级 Harness 技术全解析</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../zh/blogs/agentscope-v1-harness.html">AgentScope Java 1.1 · Harness</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../zh/blogs/agentscope-v1-builder.html">AgentScope Builder 发布</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zh/blogs/agentscope-v2-coding-agent.html">Coding Agent 的下半场：从个人提效到组织级研发体系</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zh/blogs/managed-agents-agentscope-rumtime.html">Managed Agents 背景</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zh/blogs/managed-agents-agentscope-rumtime.html#agentscope-2-0-managed-agents">为什么 AgentScope 2.0 适合做 Managed Agents 底座</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zh/blogs/managed-agents-agentscope-rumtime.html#id1">企业级 Managed Agents 平台详解</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zh/blogs/managed-agents-agentscope-rumtime.html#id10">总结</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zh/blogs/agentscope-service-release.html">什么是 AgentScope Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zh/blogs/agentscope-service-release.html#id1">整体架构</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zh/blogs/agentscope-service-release.html#agent">Agent 如何接入</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zh/blogs/agentscope-service-release.html#id9">本地快速体验</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zh/blogs/agentscope-service-release.html#roadmap">Roadmap &amp; 总结</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../zh/blogs/agentscope-service-release-tech.html">AgentScope Service 技术解读：控制面、数据面与可恢复的 Agent 运行时</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../zh/blogs/usecases/index.html">客户实践案例</a><input aria-label="Toggle navigation of 客户实践案例" class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" role="switch" type="checkbox"/><label for="toctree-checkbox-18"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../zh/blogs/usecases/finxscope.html">FinXScope：基于 AgentScope 构建金融级智能体底座</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../zh/blogs/usecases/logistics.html">从配置驱动到业务原生：企业级 Agent 开发实践</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../zh/blogs/usecases/aidc-logistics.html">AIDC 物流：企业级 Agent 开发实践</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">v2 · 社区</span></p>
 <ul>
@@ -899,14 +980,54 @@
 <li><p><strong>Large tool-result offloading</strong> — offload to disk + placeholder when a single tool returns too much.</p></li>
 </ul>
 </section>
+<section id="the-three-llm-calls-at-a-glance">
+<h2>The three LLM calls at a glance<a class="headerlink" href="#the-three-llm-calls-at-a-glance" title="Link to this heading">¶</a></h2>
+<p>The memory pipeline runs <strong>three independent LLM calls</strong>, each with its own prompt and triggering rules. This is the easiest place to get confused when customizing:</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>#</p></th>
+<th class="head"><p>Operation</p></th>
+<th class="head"><p>Writes to</p></th>
+<th class="head"><p>Default prompt</p></th>
+<th class="head"><p>Customize via</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p><strong>Flush</strong> — extracts long-term facts from a conversation window</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">memory/YYYY-MM-DD.md</span></code> (append)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">MemoryFlushManager.DEFAULT_FLUSH_PROMPT</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">MemoryConfig.builder().flushPrompt(...)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p><strong>Consolidation</strong> — merges daily ledgers into <code class="docutils literal notranslate"><span class="pre">MEMORY.md</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">MEMORY.md</span></code> (full rewrite)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">MemoryConsolidator.DEFAULT_CONSOLIDATION_PROMPT</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">MemoryConfig.builder().consolidationPrompt(...)</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p><strong>Compaction summary</strong> — distills the conversation prefix into one summary message</p></td>
+<td><p>Injected into the current context</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">CompactionConfig.DEFAULT_SUMMARY_PROMPT</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">CompactionConfig.builder().summaryPrompt(...)</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The first two are “long-term memory settling” and live on <code class="docutils literal notranslate"><span class="pre">MemoryConfig</span></code>; the third is “in-context compression” and lives on <code class="docutils literal notranslate"><span class="pre">CompactionConfig</span></code>. All three LLM calls share the agent’s primary model by default, but <code class="docutils literal notranslate"><span class="pre">MemoryConfig</span></code> and <code class="docutils literal notranslate"><span class="pre">CompactionConfig</span></code> each support a <code class="docutils literal notranslate"><span class="pre">.model(...)</span></code> override so you can use a lighter model for these auxiliary operations.</p>
+</section>
 <section id="how-the-two-layers-work">
 <h2>How the two layers work<a class="headerlink" href="#how-the-two-layers-work" title="Link to this heading">¶</a></h2>
 <pre  class="mermaid">
         graph LR
-    Conv[&quot;conversation messages&quot;] --&gt;|over threshold| Compactor[&quot;conversation compaction&quot;]
-    Compactor --&gt;|offload| Sess[&quot;sessions/&amp;lt;id&amp;gt;.log.jsonl&quot;]
-    Compactor --&gt;|extract new facts| Daily[&quot;memory/YYYY-MM-DD.md&quot;]
-    Daily -. periodic background merge .-&gt; MEM[&quot;MEMORY.md&quot;]
+    Conv[&quot;conversation messages&quot;]
+    Conv --&gt;|each call end / can be throttled| Flush[&quot;Flush LLM call&quot;]
+    Flush --&gt;|extract new facts| Daily[&quot;memory/YYYY-MM-DD.md&quot;]
+    Conv --&gt;|over threshold| Compactor[&quot;conversation compaction&quot;]
+    Compactor --&gt;|offload raw| Sess[&quot;sessions/&amp;lt;id&amp;gt;.log.jsonl&quot;]
+    Compactor --&gt;|flush again before summarizing| Flush
+    Daily -. throttled background consolidation .-&gt; MEM[&quot;MEMORY.md&quot;]
     MEM --&gt;|injected each reasoning step| SYS[&quot;system prompt&quot;]
     </pre><p>Key points:</p>
 <ul class="simple">
@@ -915,10 +1036,21 @@
 <li><p>Raw messages dropped during compaction are also saved into a never-compacted log file (<code class="docutils literal notranslate"><span class="pre">*.log.jsonl</span></code>) for later audit or <code class="docutils literal notranslate"><span class="pre">session_search</span></code>.</p></li>
 </ul>
 </section>
+<section id="when-flush-fires">
+<h2>When flush fires<a class="headerlink" href="#when-flush-fires" title="Link to this heading">¶</a></h2>
+<p>Flush (path 1) is triggered at three different moments:</p>
+<ol class="arabic simple">
+<li><p><strong>End of every <code class="docutils literal notranslate"><span class="pre">call()</span></code></strong> — the default <code class="docutils literal notranslate"><span class="pre">MemoryFlushMiddleware</span></code> behaviour. Can be retuned to <code class="docutils literal notranslate"><span class="pre">NEVER</span></code> or <code class="docutils literal notranslate"><span class="pre">THROTTLED(Duration)</span></code> via <code class="docutils literal notranslate"><span class="pre">flushTrigger</span></code>.</p></li>
+<li><p><strong>Pre-compaction extraction</strong> — when <code class="docutils literal notranslate"><span class="pre">CompactionConfig.flushBeforeCompact</span> <span class="pre">=</span> <span class="pre">true</span></code> (default), the conversation prefix is flushed once before being summarized.</p></li>
+<li><p><strong>Overflow safety net</strong> — when the model actually returns <code class="docutils literal notranslate"><span class="pre">context_length_exceeded</span></code>, the framework runs an emergency compaction that includes a flush.</p></li>
+</ol>
+<p>All three sites share the <strong>same</strong> <code class="docutils literal notranslate"><span class="pre">flushPrompt</span></code>, so customizing it changes all three.</p>
+<p>Both flush and offload are <strong>asynchronous</strong>: they are launched in a fire-and-forget fashion via <code class="docutils literal notranslate"><span class="pre">doOnComplete</span></code> after the response stream has ended, so they never block the current <code class="docutils literal notranslate"><span class="pre">call()</span></code> return. The caller receives the full response first; the flush LLM call and JSONL offload run in the background afterward.</p>
+</section>
 <section id="enable-compaction">
 <h2>Enable compaction<a class="headerlink" href="#enable-compaction" title="Link to this heading">¶</a></h2>
 <div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="n">HarnessAgent</span><span class="w"> </span><span class="n">agent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HarnessAgent</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
-<span class="w">    </span><span class="p">.</span><span class="na">name</span><span class="p">(</span><span class="s">&quot;MyAgent&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">name</span><span class="p">(</span><span class="s">"MyAgent"</span><span class="p">)</span>
 <span class="w">    </span><span class="p">.</span><span class="na">model</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
 <span class="w">    </span><span class="p">.</span><span class="na">workspace</span><span class="p">(</span><span class="n">workspace</span><span class="p">)</span>
 <span class="w">    </span><span class="p">.</span><span class="na">compaction</span><span class="p">(</span><span class="n">CompactionConfig</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
@@ -956,11 +1088,19 @@
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">flushBeforeCompact</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
-<td><p>Extract new facts to the daily log before compacting</p></td>
+<td><p>Extract new facts to the daily log before compacting (path 2)</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">offloadBeforeCompact</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
 <td><p>Append raw messages to the never-compacted log before compacting</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">summaryPrompt</span></code></p></td>
+<td><p>see <code class="docutils literal notranslate"><span class="pre">DEFAULT_SUMMARY_PROMPT</span></code></p></td>
+<td><p>Path-3 summary prompt (must contain <code class="docutils literal notranslate"><span class="pre">{messages}</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">model</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">null</span></code> (uses the agent’s primary model)</p></td>
+<td><p>Dedicated model for the compaction summarization call</p></td>
 </tr>
 </tbody>
 </table>
@@ -973,10 +1113,145 @@
 <span class="w">    </span><span class="p">.</span><span class="na">triggerMessages</span><span class="p">(</span><span class="mi">80</span><span class="p">)</span>
 <span class="w">    </span><span class="p">.</span><span class="na">truncateArgs</span><span class="p">(</span><span class="n">CompactionConfig</span><span class="p">.</span><span class="na">TruncateArgsConfig</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
 <span class="w">        </span><span class="p">.</span><span class="na">maxArgLength</span><span class="p">(</span><span class="mi">2000</span><span class="p">)</span>
-<span class="w">        </span><span class="p">.</span><span class="na">truncationText</span><span class="p">(</span><span class="s">&quot;... [truncated] ...&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">truncationText</span><span class="p">(</span><span class="s">"... [truncated] ..."</span><span class="p">)</span>
 <span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
 <span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
 </pre></div>
+</div>
+</section>
+</section>
+<section id="customizing-the-memory-pipeline-memoryconfig">
+<h2>Customizing the memory pipeline: <code class="docutils literal notranslate"><span class="pre">MemoryConfig</span></code><a class="headerlink" href="#customizing-the-memory-pipeline-memoryconfig" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">MemoryConfig</span></code> is the single place to configure flush / consolidation prompts, throttling, retention, and the per-call flush trigger. Every field has a default; not calling <code class="docutils literal notranslate"><span class="pre">.memory(...)</span></code> reproduces the historical behaviour bit-for-bit.</p>
+<section id="example-1-throttle-per-call-flush-to-save-tokens">
+<h3>Example 1: throttle per-call flush to save tokens<a class="headerlink" href="#example-1-throttle-per-call-flush-to-save-tokens" title="Link to this heading">¶</a></h3>
+<p>A flush LLM call after every agent invocation can add up on long sessions. Throttle it to at most once every 10 minutes:</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="n">HarnessAgent</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">    </span><span class="p">...</span>
+<span class="w">    </span><span class="p">.</span><span class="na">memory</span><span class="p">(</span><span class="n">MemoryConfig</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">        </span><span class="p">.</span><span class="na">flushTrigger</span><span class="p">(</span><span class="n">MemoryConfig</span><span class="p">.</span><span class="na">FlushTrigger</span><span class="p">.</span><span class="na">throttled</span><span class="p">(</span><span class="n">Duration</span><span class="p">.</span><span class="na">ofMinutes</span><span class="p">(</span><span class="mi">10</span><span class="p">)))</span>
+<span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>Notes:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">THROTTLED</span></code> only affects <strong>path 1</strong> (per-call flush). The flush embedded in compaction (path 2) and the overflow flush (path 3) still fire on their own triggers — compaction is rare, so those two are infrequent by construction.</p></li>
+<li><p><strong>Offload is unaffected</strong>, the session JSONL is still written in full every call. <code class="docutils literal notranslate"><span class="pre">session_search</span></code> and session resumption keep working.</p></li>
+</ul>
+</section>
+<section id="example-2-disable-per-call-flush-entirely">
+<h3>Example 2: disable per-call flush entirely<a class="headerlink" href="#example-2-disable-per-call-flush-entirely" title="Link to this heading">¶</a></h3>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="p">.</span><span class="na">memory</span><span class="p">(</span><span class="n">MemoryConfig</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">    </span><span class="p">.</span><span class="na">flushTrigger</span><span class="p">(</span><span class="n">MemoryConfig</span><span class="p">.</span><span class="na">FlushTrigger</span><span class="p">.</span><span class="na">never</span><span class="p">())</span>
+<span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>Now flush only happens when compaction does (same cost as raw compaction).</p>
+<blockquote>
+<div><p>To turn off flush <strong>and</strong> background maintenance use <code class="docutils literal notranslate"><span class="pre">.disableMemoryHooks()</span></code>; <code class="docutils literal notranslate"><span class="pre">flushTrigger(NEVER)</span></code> only stops the per-call flush — background consolidation still runs.</p>
+</div></blockquote>
+</section>
+<section id="example-3-extend-the-default-prompt-with-project-rules">
+<h3>Example 3: extend the default prompt with project rules<a class="headerlink" href="#example-3-extend-the-default-prompt-with-project-rules" title="Link to this heading">¶</a></h3>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="p">.</span><span class="na">memory</span><span class="p">(</span><span class="n">MemoryConfig</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">    </span><span class="p">.</span><span class="na">flushPrompt</span><span class="p">(</span><span class="n">MemoryFlushManager</span><span class="p">.</span><span class="na">DEFAULT_FLUSH_PROMPT</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">"""</span>
+
+<span class="s">        Additional project rules:</span>
+<span class="s">        - Never record customer PII (names, emails, phone numbers).</span>
+<span class="s">        - Always use English for project-internal vocabulary.</span>
+<span class="s">        """</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<section id="example-4-fully-custom-consolidation-prompt">
+<h3>Example 4: fully custom consolidation prompt<a class="headerlink" href="#example-4-fully-custom-consolidation-prompt" title="Link to this heading">¶</a></h3>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="p">.</span><span class="na">memory</span><span class="p">(</span><span class="n">MemoryConfig</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">    </span><span class="p">.</span><span class="na">consolidationPrompt</span><span class="p">(</span><span class="s">"""</span>
+<span class="s">        You are merging daily memory ledgers into MEMORY.md.</span>
+<span class="s">        Keep within %d tokens (~%d chars). Output the complete file in markdown.</span>
+<span class="s">        ... your custom rules ...</span>
+<span class="s">        """</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p><strong>Important</strong>: a custom consolidation prompt <strong>must</strong> contain exactly two <code class="docutils literal notranslate"><span class="pre">%d</span></code> placeholders (max-tokens then max-chars). The Builder rejects anything else at construction time so you don’t hit a runtime <code class="docutils literal notranslate"><span class="pre">MissingFormatArgumentException</span></code>.</p>
+</div></blockquote>
+</section>
+<section id="example-5-tune-background-maintenance">
+<h3>Example 5: tune background maintenance<a class="headerlink" href="#example-5-tune-background-maintenance" title="Link to this heading">¶</a></h3>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="p">.</span><span class="na">memory</span><span class="p">(</span><span class="n">MemoryConfig</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">    </span><span class="p">.</span><span class="na">consolidationMinGap</span><span class="p">(</span><span class="n">Duration</span><span class="p">.</span><span class="na">ofHours</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span><span class="w">   </span><span class="c1">// background merge at most every 2h</span>
+<span class="w">    </span><span class="p">.</span><span class="na">dailyFileRetentionDays</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span><span class="w">                 </span><span class="c1">// archive daily logs after 30 days</span>
+<span class="w">    </span><span class="p">.</span><span class="na">sessionRetentionDays</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span><span class="w">                   </span><span class="c1">// prune session JSONL after 60 days</span>
+<span class="w">    </span><span class="p">.</span><span class="na">consolidationMaxTokens</span><span class="p">(</span><span class="mi">8_000</span><span class="p">)</span><span class="w">              </span><span class="c1">// raise MEMORY.md cap to 8K tokens</span>
+<span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<section id="example-6-use-a-smaller-model-for-memory-operations">
+<h3>Example 6: use a smaller model for memory operations<a class="headerlink" href="#example-6-use-a-smaller-model-for-memory-operations" title="Link to this heading">¶</a></h3>
+<p>Flush and consolidation don’t need the full power of the primary reasoning model — use a cheaper one to save cost:</p>
+<div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="n">HarnessAgent</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">    </span><span class="p">.</span><span class="na">model</span><span class="p">(</span><span class="s">"openai:o3"</span><span class="p">)</span><span class="w">                   </span><span class="c1">// primary reasoning model</span>
+<span class="w">    </span><span class="p">.</span><span class="na">memory</span><span class="p">(</span><span class="n">MemoryConfig</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">        </span><span class="p">.</span><span class="na">model</span><span class="p">(</span><span class="s">"openai:gpt-4.1-mini"</span><span class="p">)</span><span class="w">     </span><span class="c1">// lighter model for memory ops</span>
+<span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">    </span><span class="p">.</span><span class="na">compaction</span><span class="p">(</span><span class="n">CompactionConfig</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">        </span><span class="p">.</span><span class="na">model</span><span class="p">(</span><span class="s">"openai:gpt-4.1-mini"</span><span class="p">)</span><span class="w">     </span><span class="c1">// lighter model for compaction</span>
+<span class="w">        </span><span class="p">.</span><span class="na">build</span><span class="p">())</span>
+<span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">model(String)</span></code> resolves via <code class="docutils literal notranslate"><span class="pre">ModelRegistry.resolve()</span></code>; you can also pass a <code class="docutils literal notranslate"><span class="pre">Model</span></code> instance. When not set, falls back to the agent’s primary model.</p>
+</section>
+<section id="memoryconfig-field-reference">
+<h3><code class="docutils literal notranslate"><span class="pre">MemoryConfig</span></code> field reference<a class="headerlink" href="#memoryconfig-field-reference" title="Link to this heading">¶</a></h3>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Purpose</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">model</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">null</span></code> (uses the agent’s primary model)</p></td>
+<td><p>Dedicated model for flush / consolidation; accepts a <code class="docutils literal notranslate"><span class="pre">Model</span></code> instance or a <code class="docutils literal notranslate"><span class="pre">&quot;provider:model&quot;</span></code> string</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">flushPrompt</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">null</span></code> (uses <code class="docutils literal notranslate"><span class="pre">DEFAULT_FLUSH_PROMPT</span></code>)</p></td>
+<td><p>SYSTEM prompt for path 1</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">consolidationPrompt</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">null</span></code> (uses <code class="docutils literal notranslate"><span class="pre">DEFAULT_CONSOLIDATION_PROMPT</span></code>)</p></td>
+<td><p>Template for path 2 (must contain two <code class="docutils literal notranslate"><span class="pre">%d</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">consolidationMaxTokens</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">4_000</span></code></p></td>
+<td><p>Token cap for <code class="docutils literal notranslate"><span class="pre">MEMORY.md</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">consolidationMinGap</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">30</span> <span class="pre">min</span></code></p></td>
+<td><p>Throttle gap for background maintenance</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dailyFileRetentionDays</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">90</span></code></p></td>
+<td><p>Days before a daily log moves to <code class="docutils literal notranslate"><span class="pre">memory/archive/</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sessionRetentionDays</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">180</span></code></p></td>
+<td><p>Days before a <code class="docutils literal notranslate"><span class="pre">*.log.jsonl</span></code> is pruned</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">flushTrigger</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">FlushTrigger.always()</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ALWAYS</span></code> / <code class="docutils literal notranslate"><span class="pre">NEVER</span></code> / <code class="docutils literal notranslate"><span class="pre">THROTTLED(Duration)</span></code></p></td>
+</tr>
+</tbody>
+</table>
 </div>
 </section>
 </section>
@@ -1010,29 +1285,32 @@
 <h2>Background maintenance<a class="headerlink" href="#background-maintenance" title="Link to this heading">¶</a></h2>
 <p>When memory is enabled, a throttled background job also runs (triggered at each <code class="docutils literal notranslate"><span class="pre">call()</span></code> end with a minimum gap, default ~30 minutes max):</p>
 <ul class="simple">
-<li><p>Archives daily logs older than 90 days to <code class="docutils literal notranslate"><span class="pre">memory/archive/</span></code></p></li>
+<li><p>Archives daily logs older than <code class="docutils literal notranslate"><span class="pre">dailyFileRetentionDays</span></code> (default 90 days) to <code class="docutils literal notranslate"><span class="pre">memory/archive/</span></code></p></li>
 <li><p>Runs one <code class="docutils literal notranslate"><span class="pre">MEMORY.md</span></code> consolidation pass</p></li>
-<li><p>Prunes session logs older than 180 days</p></li>
+<li><p>Prunes session logs older than <code class="docutils literal notranslate"><span class="pre">sessionRetentionDays</span></code> (default 180 days)</p></li>
 </ul>
-<p>All numbers are tunable, but most projects don’t need to touch them.</p>
+<p>All thresholds are tunable via <code class="docutils literal notranslate"><span class="pre">.memory(MemoryConfig.builder()...)</span></code>, though most projects don’t need to touch them.</p>
 </section>
 <section id="turn-it-off-entirely">
 <h2>Turn it off entirely<a class="headerlink" href="#turn-it-off-entirely" title="Link to this heading">¶</a></h2>
 <p>If you want to handle memory yourself or wire your own tools:</p>
 <div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="n">HarnessAgent</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
 <span class="w">    </span><span class="p">...</span>
-<span class="w">    </span><span class="p">.</span><span class="na">disableMemoryHooks</span><span class="p">()</span><span class="w">      </span><span class="c1">// disables flush + background maintenance</span>
-<span class="w">    </span><span class="p">.</span><span class="na">disableMemoryTools</span><span class="p">()</span><span class="w">      </span><span class="c1">// skips memory_search / memory_get / session_search registration</span>
+<span class="w">    </span><span class="p">.</span><span class="na">disableMemoryHooks</span><span class="p">()</span><span class="w">      </span><span class="c1">// disables flush + background maintenance (+ auto-extract prompt line)</span>
+<span class="w">    </span><span class="p">.</span><span class="na">disableMemoryTools</span><span class="p">()</span><span class="w">      </span><span class="c1">// skips memory_search / memory_get / memory_save / session_search</span>
+<span class="w">                               </span><span class="c1">// and matching Memory Recall / tool Persistence guidance</span>
 <span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
 </pre></div>
 </div>
+<p>Together these also skip <code class="docutils literal notranslate"><span class="pre">&lt;memory_context&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">MEMORY.md</span></code>) injection while keeping Domain Knowledge / AGENTS / knowledge context.</p>
+<p><code class="docutils literal notranslate"><span class="pre">disableMemoryHooks()</span></code> is the nuclear option for background memory work; if you only want to throttle, use <code class="docutils literal notranslate"><span class="pre">.memory(MemoryConfig.builder().flushTrigger(...).build())</span></code> instead.</p>
 </section>
 <section id="related-pages">
 <h2>Related Pages<a class="headerlink" href="#related-pages" title="Link to this heading">¶</a></h2>
 <ul class="simple">
-<li><p><a class="reference internal" href="workspace.html"><span class="doc std std-doc">Workspace</span></a> — where <code class="docutils literal notranslate"><span class="pre">MEMORY.md</span></code> / <code class="docutils literal notranslate"><span class="pre">memory/</span></code> live in the workspace</p></li>
-<li><p><a class="reference internal" href="context.html"><span class="doc std std-doc">Context</span></a> — the never-compacted <code class="docutils literal notranslate"><span class="pre">*.log.jsonl</span></code> conversation log</p></li>
-<li><p><a class="reference internal" href="architecture.html"><span class="doc std std-doc">Architecture</span></a> — how facts in long conversations settle into <code class="docutils literal notranslate"><span class="pre">MEMORY.md</span></code></p></li>
+<li><p><a class="reference internal" href="workspace.html"><span class="std std-doc">Workspace</span></a> — where <code class="docutils literal notranslate"><span class="pre">MEMORY.md</span></code> / <code class="docutils literal notranslate"><span class="pre">memory/</span></code> live in the workspace</p></li>
+<li><p><a class="reference internal" href="../building-blocks/context.html"><span class="std std-doc">Context</span></a> — the never-compacted <code class="docutils literal notranslate"><span class="pre">*.log.jsonl</span></code> conversation log</p></li>
+<li><p><a class="reference internal" href="architecture.html"><span class="std std-doc">Architecture</span></a> — how facts in long conversations settle into <code class="docutils literal notranslate"><span class="pre">MEMORY.md</span></code></p></li>
 </ul>
 </section>
 </section>
@@ -1090,7 +1368,7 @@
             Made with 
             <a href="https://github.com/pradyunsg/furo">Furo</a>
             <div class="last-updated">
-              Last updated on 2026-06-02</div>
+              Last updated on 2026-08-05</div>
           </div>
           <div class="right-details">
             <div class="icons">
@@ -1127,9 +1405,21 @@
             <ul>
 <li><a class="reference internal" href="#">Memory</a><ul>
 <li><a class="reference internal" href="#role">Role</a></li>
+<li><a class="reference internal" href="#the-three-llm-calls-at-a-glance">The three LLM calls at a glance</a></li>
 <li><a class="reference internal" href="#how-the-two-layers-work">How the two layers work</a></li>
+<li><a class="reference internal" href="#when-flush-fires">When flush fires</a></li>
 <li><a class="reference internal" href="#enable-compaction">Enable compaction</a><ul>
 <li><a class="reference internal" href="#want-it-lighter-trim-arguments-first">Want it lighter? Trim arguments first</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#customizing-the-memory-pipeline-memoryconfig">Customizing the memory pipeline: <code class="docutils literal notranslate"><span class="pre">MemoryConfig</span></code></a><ul>
+<li><a class="reference internal" href="#example-1-throttle-per-call-flush-to-save-tokens">Example 1: throttle per-call flush to save tokens</a></li>
+<li><a class="reference internal" href="#example-2-disable-per-call-flush-entirely">Example 2: disable per-call flush entirely</a></li>
+<li><a class="reference internal" href="#example-3-extend-the-default-prompt-with-project-rules">Example 3: extend the default prompt with project rules</a></li>
+<li><a class="reference internal" href="#example-4-fully-custom-consolidation-prompt">Example 4: fully custom consolidation prompt</a></li>
+<li><a class="reference internal" href="#example-5-tune-background-maintenance">Example 5: tune background maintenance</a></li>
+<li><a class="reference internal" href="#example-6-use-a-smaller-model-for-memory-operations">Example 6: use a smaller model for memory operations</a></li>
+<li><a class="reference internal" href="#memoryconfig-field-reference"><code class="docutils literal notranslate"><span class="pre">MemoryConfig</span></code> field reference</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#large-tool-result-offloading">Large tool-result offloading</a></li>
@@ -1166,7 +1456,6 @@
     <script async="async" src="../../../../_static/sphinx-thebe.js?v=c100c467"></script>
     <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
     <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
-    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
     <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
 
 
@@ -1175,173 +1464,11 @@
 
 const initStyles = () => {
     const defaultStyle = document.createElement('style');
-    defaultStyle.textContent = `pre.mermaid {
-    /* Same as .mermaid-container > pre */
-    display: block;
-    width: 100%;
-}
-
-pre.mermaid > svg {
-    /* Same as .mermaid-container > pre > svg */
-    height: 500px;
-    width: 100%;
-    max-width: 100% !important;
-}`;
+    defaultStyle.textContent = "pre.mermaid {\n    /* Same as .mermaid-container > pre */\n    display: block;\n    width: 100%;\n}\n\npre.mermaid > svg {\n    /* Same as .mermaid-container > pre > svg */\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}";
     document.head.appendChild(defaultStyle);
 
     const fullscreenStyle = document.createElement('style');
-    fullscreenStyle.textContent = `.mermaid-container {
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-}
-
-.mermaid-container > pre {
-    display: block;
-    width: 100%;
-}
-
-.mermaid-container > pre > svg {
-    height: 500px;
-    width: 100%;
-    max-width: 100% !important;
-}
-
-.mermaid-fullscreen-btn {
-    width: 28px;
-    height: 28px;
-    background: rgba(255, 255, 255, 0.95);
-    border: 1px solid rgba(0, 0, 0, 0.3);
-    border-radius: 4px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-    font-size: 14px;
-    line-height: 1;
-    padding: 0;
-    color: #333;
-}
-
-.mermaid-fullscreen-btn:hover {
-    opacity: 100% !important;
-    background: rgba(255, 255, 255, 1);
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
-    transform: scale(1.1);
-}
-
-.mermaid-fullscreen-btn.dark-theme {
-    background: rgba(50, 50, 50, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    color: #e0e0e0;
-}
-
-.mermaid-fullscreen-btn.dark-theme:hover {
-    background: rgba(60, 60, 60, 1);
-    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
-}
-
-.mermaid-fullscreen-modal {
-    display: none;
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 95vw;
-    height: 100vh;
-    background: rgba(255, 255, 255, 0.98);
-    z-index: 9999;
-    padding: 20px;
-    overflow: auto;
-}
-
-.mermaid-fullscreen-modal.dark-theme {
-    background: rgba(0, 0, 0, 0.98);
-}
-
-.mermaid-fullscreen-modal.active {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.mermaid-container-fullscreen {
-    position: relative;
-    width: 95vw;
-    height: 90vh;
-    max-width: 95vw;
-    max-height: 90vh;
-    background: white;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-    overflow: auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.mermaid-container-fullscreen.dark-theme {
-    background: #1a1a1a;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
-}
-
-.mermaid-container-fullscreen pre.mermaid {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.mermaid-container-fullscreen .mermaid svg {
-    height: 100% !important;
-    width: 100% !important;
-    cursor: grab;
-}
-
-.mermaid-fullscreen-close {
-    position: fixed !important;
-    top: 20px !important;
-    right: 20px !important;
-    width: 40px;
-    height: 40px;
-    background: rgba(255, 255, 255, 0.95);
-    border: 1px solid rgba(0, 0, 0, 0.2);
-    border-radius: 50%;
-    cursor: pointer;
-    z-index: 10000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    transition: all 0.2s;
-    font-size: 24px;
-    line-height: 1;
-    color: #333;
-}
-
-.mermaid-fullscreen-close:hover {
-    background: white;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
-    transform: scale(1.1);
-}
-
-.mermaid-fullscreen-close.dark-theme {
-    background: rgba(50, 50, 50, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #e0e0e0;
-}
-
-.mermaid-fullscreen-close.dark-theme:hover {
-    background: rgba(60, 60, 60, 1);
-    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
-}
-
-.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
-    display: none !important;
-}`;
+    fullscreenStyle.textContent = ".mermaid-container {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    width: 100%;\n}\n\n.mermaid-container > pre {\n    display: block;\n    width: 100%;\n}\n\n.mermaid-container > pre > svg {\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}\n\n.mermaid-fullscreen-btn {\n    position: absolute;\n    width: 28px;\n    height: 28px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.3);\n    border-radius: 4px;\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: all 0.2s;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);\n    font-size: 14px;\n    line-height: 1;\n    padding: 0;\n    color: #333;\n}\n\n.mermaid-fullscreen-btn:hover {\n    opacity: 100% !important;\n    background: rgba(255, 255, 255, 1);\n    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-btn.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.3);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-btn.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal {\n    display: none;\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    width: 95vw;\n    height: 100vh;\n    background: rgba(255, 255, 255, 0.98);\n    z-index: 9999;\n    padding: 20px;\n    overflow: auto;\n}\n\n.mermaid-fullscreen-modal.dark-theme {\n    background: rgba(0, 0, 0, 0.98);\n}\n\n.mermaid-fullscreen-modal.active {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen {\n    position: relative;\n    width: 95vw;\n    height: 90vh;\n    max-width: 95vw;\n    max-height: 90vh;\n    background: white;\n    border-radius: 8px;\n    padding: 20px;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);\n    overflow: auto;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen.dark-theme {\n    background: #1a1a1a;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);\n}\n\n.mermaid-container-fullscreen pre.mermaid {\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen .mermaid svg {\n    height: 100% !important;\n    width: 100% !important;\n    cursor: grab;\n}\n\n.mermaid-fullscreen-close {\n    position: fixed !important;\n    top: 20px !important;\n    right: 20px !important;\n    width: 40px;\n    height: 40px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.2);\n    border-radius: 50%;\n    cursor: pointer;\n    z-index: 10000;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n    transition: all 0.2s;\n    font-size: 24px;\n    line-height: 1;\n    color: #333;\n}\n\n.mermaid-fullscreen-close:hover {\n    background: white;\n    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-close.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.2);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-close.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal .mermaid-fullscreen-btn {\n    display: none !important;\n}";
     document.head.appendChild(fullscreenStyle);
 }
 
@@ -1386,6 +1513,32 @@ let darkTheme = isDarkTheme();
 let modal = null;
 let modalContent = null;
 let previousScrollOffset = [window.scrollX, window.scrollY];
+let _lazyObserver = null;
+let _renderQueue = Promise.resolve();
+let closeModal = () => {};
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal?.classList.contains('active')) {
+        closeModal();
+    }
+});
+
+// Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
+// so this is safe to call both for the initial batch and for diagrams that
+// render lazily once they become visible.
+const addZoomToSvgs = (svgs) => {
+    svgs.each(function() {
+        if (this.getAttribute('data-zoom-applied') === 'true') return;
+        var svg = d3.select(this);
+        svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+        var inner = svg.select("g");
+        var zoom = d3.zoom().on("zoom", function(event) {
+            inner.attr("transform", event.transform);
+        });
+        svg.call(zoom);
+        this.setAttribute('data-zoom-applied', 'true');
+    });
+};
 
 const runMermaid = async (rerun) => {
     console.log("Running mermaid diagrams, rerun =", rerun);
@@ -1393,7 +1546,15 @@ const runMermaid = async (rerun) => {
     let all_mermaids = document.querySelectorAll(".mermaid");
 
     if (rerun) {
+        // Disconnect any previous lazy rendering observer
+        if (_lazyObserver) {
+            _lazyObserver.disconnect();
+            _lazyObserver = null;
+        }
+
         all_mermaids.forEach((el) => {
+            el.removeAttribute('data-mermaid-deferred');
+            el.removeAttribute('data-mermaid-render-failed');
             if(!el.hasAttribute("data-original-code")) {
                 // store original code
                 // console.log(`Storing original code for first run: `, el.innerHTML);
@@ -1410,42 +1571,100 @@ const runMermaid = async (rerun) => {
                 el.setAttribute('data-original-code', el.innerHTML);
             }
         });
-        await mermaid.run();
+
+        // Separate visible and hidden elements. Mermaid's layout engine measures
+        // text dimensions via the DOM, which fails for elements hidden by a parent
+        // (e.g., Reveal.js non-active slides, sphinx-design unopened tabs),
+        // producing broken SVGs. Render visible elements now, defer hidden ones.
+        const visible = [];
+        const hidden = [];
+        all_mermaids.forEach((el) => {
+            // offsetParent is null for display:none ancestors.
+            // getClientRects().length > 0 catches position:fixed elements
+            // (which also have null offsetParent but are still visible).
+            if (el.offsetParent !== null || el.getClientRects().length > 0) {
+                visible.push(el);
+            } else {
+                hidden.push(el);
+                el.setAttribute('data-mermaid-deferred', 'true');
+            }
+        });
+
+        if (visible.length > 0) {
+            try {
+                await mermaid.run({ nodes: visible });
+            } catch (e) {
+                console.error("Mermaid rendering failed:", e);
+            }
+        }
+
+        // Lazily render hidden elements when they become visible.
+        // Uses a promise chain (_renderQueue) to serialize rendering,
+        // since IntersectionObserver may report multiple entries at once
+        // and mermaid.run() is not safe to call concurrently.
+        if (hidden.length > 0) {
+            if (typeof IntersectionObserver === 'undefined') {
+                console.warn("IntersectionObserver not available; hidden mermaid diagrams will not render.");
+            } else {
+                _renderQueue = Promise.resolve();
+                _lazyObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting && entry.target.getAttribute("data-processed") !== "true") {
+                            _lazyObserver.unobserve(entry.target);
+                            const el = entry.target;
+                            _renderQueue = _renderQueue.then(async () => {
+                                try {
+                                    await mermaid.run({ nodes: [el] });
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    // Apply zoom to the now-rendered diagram, matching
+                                    // the decoration visible diagrams receive.
+                                    if (false) {
+                                        addZoomToSvgs(d3.selectAll("").select(function() {
+                                            return this.querySelector("svg");
+                                        }));
+                                    }
+                                } catch (e) {
+                                    console.error("Mermaid deferred rendering failed:", e);
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    el.setAttribute('data-mermaid-render-failed', 'true');
+                                }
+                            });
+                        }
+                    }
+                });
+                hidden.forEach((el) => _lazyObserver.observe(el));
+            }
+        }
     }
 
     all_mermaids = document.querySelectorAll(".mermaid");
-    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+    // Exclude deferred (hidden) and render-failed elements from completion checks
+    const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
+    const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
 
-    if ("False" === "True") {
-        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+    if (false) {
+        const mermaids_to_add_zoom = 0 === -1 ? mermaids_active.length : 0;
         if(mermaids_to_add_zoom > 0) {
-            var svgs = d3.selectAll("");
-            if(all_mermaids.length !== mermaids_processed.length) {
+            var svgs = d3.selectAll("").select(function() {
+                return this.querySelector("svg");
+            });
+            // Wait until every active (visible) diagram has rendered. Deferred
+            // diagrams are excluded, so a fixed d3_node_count that counts a
+            // hidden diagram no longer loops forever waiting for its SVG.
+            if(mermaids_active.length !== mermaids_processed.length) {
                 setTimeout(() => runMermaid(false), 200);
                 return;
-            } else if(svgs.size() !== mermaids_to_add_zoom) {
-                setTimeout(() => runMermaid(false), 200);
-                return;
-            } else {
-                svgs.each(function() {
-                    var svg = d3.select(this);
-                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
-                    var inner = svg.select("g");
-                    var zoom = d3.zoom().on("zoom", function(event) {
-                        inner.attr("transform", event.transform);
-                    });
-                    svg.call(zoom);
-                });
             }
+            addZoomToSvgs(svgs);
         }
-    } else if(all_mermaids.length !== mermaids_processed.length) {
+    } else if(mermaids_active.length !== mermaids_processed.length) {
         // Wait for mermaid to process all diagrams
         setTimeout(() => runMermaid(false), 200);
         return;
     }
 
     // Stop here if not adding fullscreen capability
-    if ("True" !== "True") return;
+    if (!true) return;
 
     if (modal !== null ) {
         // Destroy existing modal
@@ -1468,7 +1687,7 @@ const runMermaid = async (rerun) => {
     modalContent = modal.querySelector('.mermaid-container-fullscreen');
     const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
 
-    const closeModal = () => {
+    closeModal = () => {
         modal.classList.remove('active');
         modalContent.innerHTML = '';
         document.body.style.overflow = ''
@@ -1479,12 +1698,6 @@ const runMermaid = async (rerun) => {
     modal.addEventListener('click', (e) => {
         if (e.target === modal) closeModal();
     });
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && modal.classList.contains('active')) {
-            closeModal();
-        }
-    });
-
     document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
         if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
             mermaidDiv.closest('.mermaid-fullscreen-modal')) {
@@ -1504,8 +1717,8 @@ const runMermaid = async (rerun) => {
         const fullscreenBtn = document.createElement('button');
         fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
         fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
-        fullscreenBtn.textContent = '⛶';
-        fullscreenBtn.style.opacity = '50%';
+        fullscreenBtn.textContent = "\u26f6";
+        fullscreenBtn.style.opacity = "50%";
 
         // Calculate dynamic position based on diagram's margin and padding
         const diagramStyle = window.getComputedStyle(mermaidDiv);
@@ -1517,7 +1730,7 @@ const runMermaid = async (rerun) => {
         fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
 
         fullscreenBtn.addEventListener('click', () => {
-            previousScrollOffset = [window.scroll, window.scrollY];
+            previousScrollOffset = [window.scrollX, window.scrollY];
             const clone = mermaidDiv.cloneNode(true);
             modalContent.innerHTML = '';
             modalContent.appendChild(clone);
@@ -1529,9 +1742,9 @@ const runMermaid = async (rerun) => {
                 svg.style.width = '100%';
                 svg.style.height = 'auto';
                 svg.style.maxWidth = '100%';
-                svg.style.sdisplay = 'block';
+                svg.style.display = 'block';
 
-                if ("False" === "True") {
+                if (false) {
                     setTimeout(() => {
                         const g = svg.querySelector('g');
                         if (g) {
@@ -1554,8 +1767,11 @@ const runMermaid = async (rerun) => {
     });
 };
 
+
+
 const load = async () => {
     initStyles();
+
 
     await runMermaid(true);
 
@@ -1565,10 +1781,8 @@ const load = async () => {
             darkTheme = newDarkTheme;
             console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
             await mermaid.initialize(
-                {...JSON.parse(
-                    `{"startOnLoad": false}`
-                ),
-                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                {...{"startOnLoad": false},
+                ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
                 }
             );
             await runMermaid(true);
@@ -1593,10 +1807,8 @@ const load = async () => {
 
 console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
 mermaid.initialize(
-    {...JSON.parse(
-        `{"startOnLoad": false}`
-    ),
-    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    {...{"startOnLoad": false},
+    ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
     }
 );
 
@@ -1607,5 +1819,6 @@ window.runMermaid = runMermaid;</script>
     <script src="../../../../_static/notice-bar.js?v=6a544133"></script>
     <script src="../../../../_static/mermaid-zoom.js?v=b287901b"></script>
     <script src="../../../../_static/version.js?v=b09c2e6c"></script>
+    <script src="../../../../_static/ai-context-menu.js?v=915d0de6"></script>
     </body>
 </html>

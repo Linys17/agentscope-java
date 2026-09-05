@@ -13,7 +13,7 @@ hide-toc: true
 <div class="hs-hero">
   <div>
     <h1 class="hs-hero__headline">构建<span class="hs-hero__accent">分布式、企业级</span>智能体！</h1>
-    <p class="hs-hero__desc">AgentScope Java 是面向 JVM 的开源 Agent 框架。提供 ReAct 推理、Harness 工程化基础设施、多智能体编排与 MCP/A2A 协议支持，覆盖从本地原型到企业级分布式部署全链路。</p>
+    <p class="hs-hero__desc">AgentScope Java 2.0 是面向企业级、分布式、生产环境的智能体框架，提供与模型能力相匹配的核心 Harness 抽象，可支持长期、稳定、安全可控的智能体任务执行。</p>
     <div class="hs-hero__actions">
       <a href="docs/quickstart.html" class="hs-btn hs-btn--primary">快速开始 →</a>
       <a href="https://github.com/agentscope-ai/agentscope-java" class="hs-btn hs-btn--secondary">
@@ -36,7 +36,7 @@ hide-toc: true
       </div>
       <div class="hs-code-panel" id="zh-harness"><pre><span class="kw">var</span> agent = <span class="ty">HarnessAgent</span>.builder()
     .name(<span class="str">"coder"</span>)
-    .model(<span class="str">"qwen-max"</span>)                                <span class="cm">// ModelRegistry 解析，读取 DASHSCOPE_API_KEY</span>
+    .model(<span class="str">"dashscope:qwen-max"</span>)                                <span class="cm">// ModelRegistry 解析，读取 DASHSCOPE_API_KEY</span>
     .workspace(<span class="ty">Paths</span>.get(<span class="str">".agentscope/workspace"</span>))   <span class="cm">// AGENTS.md · MEMORY.md · skills · subagents</span>
     .filesystem(<span class="kw">new</span> <span class="ty">DockerFilesystemSpec</span>()           <span class="cm">// 沙箱执行：本地 · Docker · 远端 KV 一行切换</span>
         .isolationScope(<span class="ty">IsolationScope</span>.USER))           <span class="cm">// 同一 user 跨 session 共享</span>
@@ -52,23 +52,46 @@ agent.call(msg, <span class="ty">RuntimeContext</span>.builder()
   </div>
 </div>
 
-<!-- Stats strip -->
-<div class="hs-stats">
-  <div class="hs-stat">
-    <span class="hs-stat__val">Agentic</span>
-    <span class="hs-stat__label">智能体优先的执行模型</span>
+<!-- Stats strip: 典型用户案例 -->
+<div class="hs-adoption">
+  <div class="hs-adoption__eyebrow">
+    <span class="hs-adoption__eyebrow-dot"></span>生产环境验证 · Battle-tested in Production
   </div>
-  <div class="hs-stat">
-    <span class="hs-stat__val">Harness</span>
-    <span class="hs-stat__label">长期稳定运行的工程底座</span>
+  <div class="hs-adoption__stats">
+    <div class="hs-stat">
+      <span class="hs-stat__val">阿里巴巴集团</span>
+      <span class="hs-stat__label">集团内使用最广泛的智能体框架（Java &amp; Python），十余条核心业务线生产环境深度使用</span>
+    </div>
+    <div class="hs-stat">
+      <span class="hs-stat__val">开源社区</span>
+      <span class="hs-stat__label">开源与阿里云公有云用户覆盖 10+ 行业的头部企业</span>
+    </div>
   </div>
-  <div class="hs-stat">
-    <span class="hs-stat__val">Sandbox</span>
-    <span class="hs-stat__label">隔离执行 + 快照恢复</span>
+  <div class="hs-adoption__row">
+    <span class="hs-adoption__row-label">阿里巴巴集团</span>
+    <div class="hs-marquee">
+      <div class="hs-marquee__track">
+        <span class="hs-marquee__group">
+          <span class="hs-tag">飞猪</span><span class="hs-tag">淘宝闪购</span><span class="hs-tag">虎鲸文娱</span><span class="hs-tag">AIDC</span><span class="hs-tag">阿里控股</span><span class="hs-tag">淘天交易</span><span class="hs-tag">淘天手淘</span><span class="hs-tag">1688</span><span class="hs-tag">千问 APP</span><span class="hs-tag">高德</span><span class="hs-tag">阿里云</span><span class="hs-tag">蚂蚁国际</span><span class="hs-tag">蚂蚁全球支付</span><span class="hs-tag hs-tag--more">…</span>
+        </span>
+        <span class="hs-marquee__group" aria-hidden="true">
+          <span class="hs-tag">飞猪</span><span class="hs-tag">淘宝闪购</span><span class="hs-tag">虎鲸文娱</span><span class="hs-tag">AIDC</span><span class="hs-tag">阿里控股</span><span class="hs-tag">淘天交易</span><span class="hs-tag">淘天手淘</span><span class="hs-tag">1688</span><span class="hs-tag">千问 APP</span><span class="hs-tag">高德</span><span class="hs-tag">阿里云</span><span class="hs-tag">蚂蚁国际</span><span class="hs-tag">蚂蚁全球支付</span><span class="hs-tag hs-tag--more">…</span>
+        </span>
+      </div>
+    </div>
   </div>
-  <div class="hs-stat">
-    <span class="hs-stat__val">Distributed</span>
-    <span class="hs-stat__label">A2A / MCP / 跨进程编排</span>
+  <div class="hs-adoption__row">
+    <span class="hs-adoption__row-label">开源 · 公有云</span>
+    <div class="hs-marquee hs-marquee--reverse">
+      <div class="hs-marquee__track">
+        <span class="hs-marquee__group">
+          <span class="hs-tag">金融</span><span class="hs-tag">交通物流</span><span class="hs-tag">消费零售</span><span class="hs-tag">制造</span><span class="hs-tag">能源</span><span class="hs-tag">医疗</span><span class="hs-tag">教育政媒</span><span class="hs-tag">互联网</span><span class="hs-tag">SaaS</span><span class="hs-tag">咨询</span><span class="hs-tag hs-tag--more">等行业头部企业</span>
+        </span>
+        <span class="hs-marquee__group" aria-hidden="true">
+          <span class="hs-tag">金融</span><span class="hs-tag">交通物流</span><span class="hs-tag">消费零售</span><span class="hs-tag">制造</span><span class="hs-tag">能源</span><span class="hs-tag">医疗</span><span class="hs-tag">教育政媒</span><span class="hs-tag">互联网</span><span class="hs-tag">SaaS</span><span class="hs-tag">咨询</span><span class="hs-tag hs-tag--more">等行业头部企业</span>
+        </span>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -144,7 +167,7 @@ agent.call(msg, <span class="ty">RuntimeContext</span>.builder()
     <a class="hs-card" href="docs/building-blocks/model.html">
       <svg class="hs-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
       <h3>模型容错</h3>
-      <p>统一的 Credential + ChatModel 抽象，覆盖 Qwen / OpenAI / Anthropic / Gemini / DeepSeek / Ollama；可配置最大重试与备用模型，主模型不可用时自动切换。</p>
+      <p>通过模型扩展模块提供统一的 Credential + ChatModel 抽象，覆盖 Qwen / OpenAI / Anthropic / Gemini / DeepSeek / Ollama；可配置最大重试与备用模型，主模型不可用时自动切换。</p>
       <span class="hs-card__link">了解模型 →</span>
     </a>
     <a class="hs-card" href="docs/harness/memory.html">
@@ -199,7 +222,7 @@ agent.call(msg, <span class="ty">RuntimeContext</span>.builder()
   </details>
   <details class="hs-faq-item">
     <summary>支持哪些 LLM 提供商？</summary>
-    <p>开箱支持：OpenAI（含兼容端点 vLLM、DeepSeek、Kimi、Moonshot）、Anthropic Claude、阿里云通义千问（DashScope）、Google Gemini、xAI Grok、本地 Ollama。每个都是统一 builder 后面一份独立的 <code>ChatModel</code> 实现，可在模型层配置重试与备用模型实现容错切换。</p>
+    <p>通过模型扩展模块支持：OpenAI（含兼容端点 vLLM、DeepSeek、Kimi、Moonshot）、Anthropic Claude、阿里云通义千问（DashScope）、Google Gemini、xAI Grok、本地 Ollama。每个都是统一 builder 后面一份独立的 <code>ChatModel</code> 实现，可在模型层配置重试与备用模型实现容错切换。</p>
   </details>
   <details class="hs-faq-item">
     <summary>Harness 和裸的 ReActAgent 有什么区别？</summary>
@@ -207,7 +230,7 @@ agent.call(msg, <span class="ty">RuntimeContext</span>.builder()
   </details>
   <details class="hs-faq-item">
     <summary>2.0 兼容 1.0 吗？</summary>
-    <p>AgentScope Java 2.0 版本尽量保持了对 1.x 版本的兼容，确保大部分用户的平滑升级；但同时 2.0 也带来了 API 层面的不兼容变更（新增类型化事件、权限系统、Middleware 栈与 Workspace 抽象等），详情可参考 <a href="docs/change-log.html">Changelog</a>。</p>
+    <p>AgentScope Java 2.0 版本尽量保持了对 1.x 版本的兼容，确保大部分用户的平滑升级；但同时 2.0 也带来了 API 层面的不兼容变更（新增类型化事件、权限系统、Middleware 栈与 Workspace 抽象等），详情可参考 <a href="docs/change-log.html">V1 迁移指南</a>。</p>
   </details>
   <details class="hs-faq-item">
     <summary>能搭配 Spring Boot 或 Quarkus 使用吗？</summary>
@@ -215,7 +238,7 @@ agent.call(msg, <span class="ty">RuntimeContext</span>.builder()
   </details>
   <details class="hs-faq-item">
     <summary>如何在生产环境中水平扩展？</summary>
-    <p>AgentScope Java 天然支持无状态水平扩展：会话状态由 <code>Session</code> 自动持久化（默认 <code>WorkspaceSession</code>），工作区可挂到远端 KV / 对象存储，沙箱模式下连可执行环境本身都能跨调用 resume。配合 Kubernetes 与 HPA，任意副本均可恢复同一用户的完整上下文。</p>
+    <p>AgentScope Java 天然支持无状态水平扩展：Agent 状态由 <code>AgentStateStore</code> 自动持久化（默认本地 <code>JsonFileAgentStateStore</code>，多副本换成 <code>RedisAgentStateStore</code>），按 <code>(userId, sessionId)</code> 寻址，工作区可挂到远端 KV / 对象存储，沙箱模式下连可执行环境本身都能跨调用 resume。配合 Kubernetes 与 HPA，任意副本均可恢复同一用户的完整上下文。</p>
   </details>
 </div>
 
